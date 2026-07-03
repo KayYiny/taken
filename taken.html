@@ -1,0 +1,2191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>taken. — Since You Arrived Vol. IV</title>
+<meta name="description" content="What the page already knows about you, revealed as you read it. No input. No permission. No exception.">
+<meta name="author" content="Matt">
+
+<link rel="canonical" href="https://sinceyouarrived.world/taken">
+<meta name="robots" content="noindex, nofollow">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Since You Arrived">
+<meta property="og:url" content="https://sinceyouarrived.world/taken">
+<meta property="og:title" content="taken.">
+<meta property="og:description" content="A web page that tells you what your browser gave away the moment you arrived. No login, no form, no permission. Most pages do this. None of them tell you.">
+<meta property="article:author" content="Matt">
+<meta property="og:image" content="https://sinceyouarrived.world/api/og-taken">
+<meta property="og:image:secure_url" content="https://sinceyouarrived.world/api/og-taken">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The word &quot;taken.&quot; in serif type on near-black, with a single line of monospace below. Since You Arrived · Vol. IV.">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="taken.">
+<meta name="twitter:description" content="A web page that tells you what your browser gave away the moment you arrived. No login, no form, no permission. Most pages do this. None of them tell you.">
+<meta name="twitter:image" content="https://sinceyouarrived.world/api/og-taken">
+<meta name="twitter:image:alt" content="The word &quot;taken.&quot; in serif type on near-black, with a single line of monospace below. Since You Arrived · Vol. IV.">
+
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%230a0a0a'/><circle cx='16' cy='16' r='3' fill='%23c4a882'/></svg>">
+<link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' fill='%230a0a0a'/><circle cx='90' cy='90' r='14' fill='%23c4a882'/></svg>">
+<link rel="manifest" href="/manifest.json">
+<link rel="me" href="https://bsky.app/profile/sinceyouarrived.world">
+<link rel="me" href="https://riseuplabs.app/">
+
+<!-- Vol. IV ships without third-party analytics on purpose. The closing paragraph
+     promises the visitor that nothing on this page sends data to third parties. The
+     promise is the volume. Two anonymous beacons hit our own /api/beacon endpoint —
+     no body retained, no identifier — and that is the entire telemetry surface. -->
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #0a0a0a;
+    --fg:        #e8e4df;
+    /* --dim bumped from #8a857f (5.4:1 — cleared AA body but felt
+       borderline for some readers at max brightness, per Bluesky
+       feedback) to #a09a92 (~7.2:1 — clears AAA body). The dossier
+       voice survives: --dim is still markedly quieter than --fg,
+       just no longer in the "almost unreadable" zone. */
+    --dim:       #a09a92;
+    --accent:    #c4a882;
+    /* --faint promoted to the old --dim (3.4:1 — clears AA large text).
+       Labels stay quieter than prose, prose stays quieter than headings;
+       the relative hierarchy is preserved. */
+    --faint:     #6b6560;
+    --darkest:   #2a2724;
+    --serif:     'EB Garamond', 'Times New Roman', Georgia, serif;
+    --mono:      'IBM Plex Mono', 'Courier New', Courier, monospace;
+  }
+
+  /* Honor the OS-level "Increase Contrast" / "more contrast" setting.
+     Visitors who have asked their operating system for higher contrast
+     (macOS, iOS, Windows, Android, GNOME) get prose at ~--fg level and
+     labels bumped a notch. The dossier hierarchy still reads, but the
+     dim register collapses toward legibility for those who need it. */
+  @media (prefers-contrast: more) {
+    :root {
+      --dim:   #e8e4df;  /* = --fg; eliminate the dim register entirely */
+      --faint: #b8b3ab;  /* old prose register; labels stay distinct */
+    }
+  }
+
+  html {
+    font-size: 18px;
+    background: var(--bg);
+    color: var(--fg);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    font-family: var(--serif);
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  .page { width: 100%; max-width: 640px; padding: 0 24px; position: relative; z-index: 2; }
+
+  /* ── Dossier rule — left-margin meter that fills as observations land,
+        plus tick marks at each observation's document position. ─── */
+  .dossier-rule {
+    position: fixed;
+    top: 0;
+    left: 14px;
+    width: 1px;
+    height: 0;
+    background: var(--faint);
+    transition: height 1.4s ease;
+    z-index: 1;
+    pointer-events: none;
+  }
+  .dossier-tick {
+    position: absolute;
+    left: 14px;
+    width: 8px;
+    height: 1px;
+    background: var(--faint);
+    opacity: 0;
+    transition: opacity 0.9s ease;
+    z-index: 1;
+    pointer-events: none;
+  }
+  .dossier-tick.visible { opacity: 1; }
+
+  /* ── Intro ──────────────────────────────────── */
+  .intro { text-align: center; padding: 18vh 0 4vh; }
+  .series-label {
+    font-family: var(--mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--faint);
+    margin-bottom: 2.5rem;
+    opacity: 0;
+    animation: appear 1.5s ease forwards 0.5s;
+  }
+  .title {
+    font-family: var(--serif);
+    font-size: 2.6rem;
+    font-weight: 400;
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+    color: var(--fg);
+    opacity: 0;
+  }
+  .title.flicker { animation: flicker 1.8s ease forwards 1.2s; }
+  .title.no-flicker { animation: appear 1.8s ease forwards 1.2s; }
+  .intro-line {
+    font-size: 1rem;
+    font-style: italic;
+    color: var(--dim);
+    margin-top: 2rem;
+    opacity: 0;
+    animation: appear 1.5s ease forwards 2.8s;
+  }
+
+  /* ── Scanning ───────────────────────────────── */
+  .scanning { text-align: center; padding: 5vh 0 2vh; opacity: 0; animation: appear 0.8s ease forwards 4.2s; }
+  .scanning.done { display: none; }
+  .scanning-text {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--faint);
+  }
+  .scanning-fp {
+    width: 64px;
+    height: 64px;
+    margin: 1rem auto 0;
+    color: var(--faint);
+    display: block;
+  }
+  .scanning-fp svg { display: block; width: 100%; height: 100%; overflow: visible; }
+  .fp-scan {
+    stroke: var(--dim);
+    animation: fpScan 2.4s ease-in-out infinite;
+    transform-origin: center;
+  }
+  @keyframes fpScan {
+    0%, 100% { transform: translateY(2px); opacity: 0.55; }
+    50%      { transform: translateY(58px); opacity: 1; }
+  }
+
+  /* ── Observations ───────────────────────────── */
+  .observations { padding: 2vh 0 4vh; }
+  .obs { margin-bottom: 3rem; opacity: 0; transform: translateY(14px); }
+  .obs.visible { animation: fadeUp 1s ease forwards; }
+  .obs-label {
+    font-family: var(--mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--dim);
+    margin-bottom: 0.55rem;
+  }
+  .obs-datum {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--accent);
+    letter-spacing: 0.04em;
+    margin-bottom: 0.7rem;
+    word-break: break-word;
+    line-height: 1.5;
+    font-weight: 400;
+  }
+  .obs-prose {
+    font-family: var(--serif);
+    font-size: 0.98rem;
+    line-height: 1.82;
+    color: var(--dim);
+  }
+  .divider {
+    width: 30px;
+    height: 1px;
+    background: var(--faint);
+    margin: 3rem 0;
+    opacity: 0;
+  }
+  .divider.visible { animation: fadeUp 0.5s ease forwards; }
+
+  /* ── Live counter ───────────────────────────── */
+  .live-counter {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    font-family: var(--mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.06em;
+    color: var(--faint);
+    text-align: center;
+    padding: 1rem 1.5rem;
+    background: linear-gradient(transparent, var(--bg) 40%);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+    z-index: 10;
+  }
+  .live-counter.visible { opacity: 1; }
+  .live-counter span { color: var(--dim); }
+
+  /* ── Closing — iconic tally → thesis → behavioral → final → view source ── */
+  .closing { padding: 4vh 0 3vh; }
+
+  .closing-tally {
+    text-align: center;
+    padding: 6vh 0 5vh;
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  .closing-tally.visible { animation: fadeUp 1.6s ease forwards; }
+  .closing-tally-number {
+    font-family: var(--serif);
+    font-size: 5.6rem;
+    font-weight: 400;
+    line-height: 1;
+    color: var(--fg);
+    letter-spacing: -0.02em;
+  }
+  .closing-tally-barcode {
+    margin: 1.6rem auto 1.4rem;
+    width: 156px;
+    height: 32px;
+    color: var(--faint);
+    display: block;
+  }
+  .closing-tally-barcode svg { display: block; width: 100%; height: 100%; }
+  @media (max-width: 480px) {
+    .closing-tally-barcode { width: 132px; height: 28px; }
+  }
+  .closing-tally-label {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--dim);
+    margin-bottom: 1.4rem;
+  }
+  .closing-tally-line {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+    color: var(--faint);
+  }
+
+  .closing-thesis,
+  .closing-behavioral,
+  .closing-final,
+  .closing-source-line {
+    text-align: center;
+    max-width: 460px;
+    margin: 0 auto;
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  .closing-thesis.visible,
+  .closing-behavioral.visible,
+  .closing-final.visible,
+  .closing-source-line.visible {
+    animation: fadeUp 1.4s ease forwards;
+  }
+  .closing-thesis {
+    font-family: var(--serif);
+    font-size: 1.05rem;
+    line-height: 1.9;
+    color: var(--fg);
+    font-style: italic;
+    padding: 0 0 4vh;
+  }
+  .closing-behavioral {
+    font-family: var(--serif);
+    font-size: 0.98rem;
+    line-height: 1.85;
+    color: var(--dim);
+    padding: 4vh 0;
+  }
+  .closing-behavioral .obs-label { display: block; margin-bottom: 0.55rem; }
+  .closing-behavioral .obs-datum { display: block; margin-bottom: 0.7rem; }
+  .closing-final {
+    font-family: var(--serif);
+    font-size: 1.05rem;
+    line-height: 1.9;
+    color: var(--fg);
+    font-style: italic;
+    padding: 4vh 0 3vh;
+  }
+  .closing-final-tag {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-top: 1.4rem;
+    font-style: normal;
+    display: block;
+  }
+  .closing-source-line {
+    font-family: var(--serif);
+    font-size: 0.96rem;
+    line-height: 1.85;
+    color: var(--dim);
+    padding: 3vh 0 5vh;
+  }
+
+  .sources-trigger {
+    background: none;
+    border: none;
+    font-family: var(--mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--dim);
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+    margin: 1.2rem auto 0;
+    display: block;
+    border-bottom: 1px solid var(--faint);
+    transition: color 0.3s ease, border-color 0.3s ease;
+  }
+  .sources-trigger:hover,
+  .sources-trigger:focus {
+    color: var(--accent);
+    border-color: var(--accent);
+    outline: none;
+  }
+
+  .share-trigger {
+    background: none;
+    border: 1px solid var(--faint);
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--dim);
+    cursor: pointer;
+    padding: 0.85rem 1.4rem;
+    margin: 2rem auto 0;
+    display: block;
+    transition: color 0.3s ease, border-color 0.3s ease;
+  }
+  .share-trigger:hover,
+  .share-trigger:focus {
+    color: var(--fg);
+    border-color: var(--accent);
+    outline: none;
+  }
+
+  /* ── Footer ─────────────────────────────────── */
+  .footer {
+    font-family: var(--serif);
+    font-size: 0.92rem;
+    line-height: 1.85;
+    color: var(--faint);
+    text-align: center;
+    padding: 6vh 24px 5vh;
+    opacity: 0;
+    max-width: 560px;
+    margin: 0 auto;
+    font-style: italic;
+  }
+  .footer.visible { animation: fadeUp 0.9s ease forwards; }
+  .footer a { color: var(--dim); text-decoration: none; border-bottom: 1px solid var(--darkest); transition: color 0.3s ease, border-color 0.3s ease; }
+  .footer a:hover { color: var(--accent); border-color: var(--accent); }
+  .footer-meta {
+    font-family: var(--mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--darkest);
+    margin-top: 2.5rem;
+    font-style: normal;
+  }
+  .colophon-made {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 0.78rem;
+    color: var(--darkest);
+    margin-top: 1.4rem;
+    letter-spacing: 0.01em;
+  }
+  .colophon-made a {
+    color: inherit;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(232,228,223,0.10);
+    transition: border-color 0.25s ease, color 0.25s ease;
+  }
+  .colophon-made a:hover {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  /* ── Tab notice ─────────────────────────────── */
+  .tab-notice {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    font-family: var(--mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    text-align: center;
+    padding: 0.85rem 1rem;
+    background: var(--bg);
+    border-bottom: 1px solid var(--faint);
+    opacity: 0;
+    transform: translateY(-100%);
+    transition: all 0.5s ease;
+    z-index: 20;
+    pointer-events: none;
+  }
+  .tab-notice.visible { opacity: 1; transform: translateY(0); }
+
+  /* ── Modals ─────────────────────────────────── */
+  .modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 10, 10, 0.92);
+    display: none;
+    align-items: flex-start;
+    justify-content: center;
+    overflow-y: auto;
+    z-index: 100;
+    padding: 4vh 1rem;
+  }
+  .modal.show { display: flex; animation: modalIn 300ms ease; }
+
+  /* Share */
+  .share-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 10, 10, 0.92);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 110;
+    padding: 4vh 1rem;
+  }
+  .share-modal.show { display: flex; animation: modalIn 300ms ease; }
+  .share-card-wrap {
+    background: #15120e;
+    border: 1px solid var(--faint);
+    max-width: 460px;
+    width: 100%;
+    padding: 2.4rem 1.8rem 1.6rem;
+    color: var(--fg);
+    box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+  }
+  .share-kicker {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent);
+    text-align: center;
+    margin-bottom: 1.4rem;
+  }
+  .share-preview {
+    border-top: 1px solid var(--faint);
+    border-bottom: 1px solid var(--faint);
+    padding: 1.4rem 0;
+    margin-bottom: 1.6rem;
+    text-align: center;
+  }
+  .share-preview-label {
+    font-family: var(--mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--dim);
+    margin-bottom: 0.8rem;
+  }
+  .share-preview-headline {
+    font-family: var(--serif);
+    font-size: 1.05rem;
+    font-style: italic;
+    color: var(--fg);
+    line-height: 1.6;
+    margin-bottom: 0.8rem;
+  }
+  .share-preview-tally {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.14em;
+    color: var(--accent);
+  }
+  .share-btns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.55rem;
+    margin-bottom: 0.8rem;
+  }
+  .seal-btn {
+    background: transparent;
+    border: 1px solid var(--faint);
+    color: var(--fg);
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    padding: 0.85rem 0.5rem;
+    cursor: pointer;
+    transition: border-color 0.25s ease, color 0.25s ease, background 0.25s ease;
+  }
+  .seal-btn:hover, .seal-btn:focus {
+    border-color: var(--accent);
+    color: var(--accent);
+    outline: none;
+  }
+  .seal-btn.full-row { grid-column: 1 / -1; }
+  .share-close-row { text-align: center; margin-top: 0.8rem; }
+  .share-close {
+    background: none;
+    border: none;
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--dim);
+    cursor: pointer;
+    padding: 0.6rem 1rem;
+  }
+  .share-close:hover, .share-close:focus { color: var(--fg); outline: none; }
+
+  /* Sources */
+  .sources-card {
+    background: #15120e;
+    border: 1px solid var(--faint);
+    max-width: 640px;
+    width: 100%;
+    padding: 2.6rem 1.8rem 2rem;
+    color: var(--fg);
+    box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+  }
+  .sources-kicker {
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent);
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+  .sources-title {
+    font-family: var(--serif);
+    font-size: 1.6rem;
+    font-weight: 400;
+    text-align: center;
+    margin-bottom: 0.8rem;
+    color: var(--fg);
+    letter-spacing: -0.01em;
+  }
+  .sources-sub {
+    font-family: var(--serif);
+    font-size: 0.96rem;
+    line-height: 1.75;
+    color: var(--dim);
+    text-align: center;
+    margin-bottom: 1.6rem;
+    font-style: italic;
+  }
+  .source-list { list-style: none; padding: 0; }
+  .source-item { padding: 1.2rem 0; border-top: 1px solid var(--faint); }
+  .source-item:first-child { border-top: 1px solid var(--faint); }
+  .source-label {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.45rem;
+  }
+  .source-cite {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--dim);
+    margin-bottom: 0.6rem;
+    word-break: break-word;
+  }
+  .source-cite a { color: var(--dim); border-bottom: 1px dotted var(--faint); text-decoration: none; }
+  .source-cite a:hover { color: var(--accent); border-color: var(--accent); }
+  .source-note {
+    font-family: var(--serif);
+    font-size: 0.92rem;
+    line-height: 1.7;
+    color: var(--dim);
+  }
+  .sources-foot {
+    margin-top: 1.6rem;
+    padding-top: 1.4rem;
+    border-top: 1px solid var(--faint);
+    font-family: var(--serif);
+    font-size: 0.92rem;
+    line-height: 1.75;
+    color: var(--dim);
+    text-align: center;
+    font-style: italic;
+  }
+  .sources-foot a { color: var(--dim); border-bottom: 1px dotted var(--faint); text-decoration: none; }
+  .sources-foot a:hover { color: var(--accent); border-color: var(--accent); }
+  .sources-close {
+    display: block;
+    margin: 1.6rem auto 0;
+    background: none;
+    border: 1px solid var(--faint);
+    color: var(--dim);
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 0.85rem 1.6rem;
+    cursor: pointer;
+    transition: color 0.25s ease, border-color 0.25s ease;
+  }
+  .sources-close:hover, .sources-close:focus {
+    color: var(--accent);
+    border-color: var(--accent);
+    outline: none;
+  }
+
+  /* ── Animations ─────────────────────────────── */
+  @keyframes appear { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes modalIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes flicker {
+    0%   { opacity: 0; transform: translateX(0); filter: blur(0); }
+    8%   { opacity: 0.4; transform: translateX(-2px); filter: blur(1.2px); }
+    14%  { opacity: 0.1; transform: translateX(2px); filter: blur(0.6px); }
+    22%  { opacity: 0.9; transform: translateX(-1px); filter: blur(0); }
+    30%  { opacity: 0.5; transform: translateX(1px); filter: blur(0.4px); }
+    42%  { opacity: 1; transform: translateX(0); filter: blur(0); }
+    100% { opacity: 1; transform: translateX(0); filter: blur(0); }
+  }
+
+  /* Honor reduced motion — the volume reads the visitor's preference; it should also respect it. */
+  @media (prefers-reduced-motion: reduce) {
+    .fp-scan { animation: none; }
+    .title.flicker { animation: appear 0.6s ease forwards 0.5s; }
+    .obs.visible, .divider.visible,
+    .closing-tally.visible, .closing-thesis.visible, .closing-behavioral.visible,
+    .closing-final.visible, .closing-source-line.visible,
+    .footer.visible { animation: appear 0.6s ease forwards; transform: none; }
+  }
+
+  @media (max-width: 480px) {
+    html { font-size: 16px; }
+    .title { font-size: 2.1rem; }
+    .intro { padding: 12vh 0 3vh; }
+    .page { padding: 0 20px; }
+    .closing-tally-number { font-size: 4.4rem; }
+    .dossier-rule, .dossier-tick { left: 8px; }
+    .share-btns { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<noscript>
+  <div style="max-width:640px;margin:6rem auto;padding:0 1.5rem;font-family:'EB Garamond',Georgia,serif;color:#e8e4df;">
+    <div style="font-family:'IBM Plex Mono','Courier New',monospace;font-size:13px;letter-spacing:0.22em;text-transform:uppercase;color:#6b6560;margin-bottom:2.5rem;">Since You Arrived &middot; Vol. IV</div>
+    <h1 style="font-size:4rem;font-weight:400;letter-spacing:-0.02em;color:#e8e4df;margin:0 0 2rem;">taken.</h1>
+    <p style="font-size:1.125rem;line-height:1.7;font-style:italic;color:#a09a92;margin-bottom:1.25rem;">This volume requires JavaScript. That is part of the point. Your browser is what is being read.</p>
+    <p style="font-size:1rem;line-height:1.7;color:#a09a92;">With JavaScript off, the page cannot tell you what your browser disclosed. The data is still there. The disclosure still happened. Only the telling of it stops.</p>
+  </div>
+</noscript>
+
+<div class="dossier-rule" id="dossierRule"></div>
+
+<div class="page">
+  <div class="intro">
+    <div class="series-label">Since You Arrived · Vol. IV</div>
+    <h1 class="title" id="title">taken.</h1>
+    <p class="intro-line">You opened this page. It already knows the following.</p>
+  </div>
+
+  <div class="scanning" id="scanning">
+    <div class="scanning-text">reading</div>
+    <div class="scanning-fp">
+      <svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+        <g stroke="currentColor" stroke-width="1" fill="none" stroke-linecap="round">
+          <path d="M 8,42 C 10,22 54,22 56,42"/>
+          <path d="M 12,46 C 14,28 50,28 52,46"/>
+          <path d="M 16,50 C 18,34 46,34 48,50"/>
+          <path d="M 20,54 C 22,40 42,40 44,54"/>
+          <path d="M 26,58 C 27,46 37,46 38,58"/>
+          <path d="M 32,42 L 32,58"/>
+          <path d="M 28,46 L 28,58"/>
+          <path d="M 36,46 L 36,58"/>
+        </g>
+        <line class="fp-scan" x1="6" y1="0" x2="58" y2="0" stroke-width="1"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="observations" id="observations"></div>
+
+  <div class="closing" id="closing"></div>
+
+  <div class="footer" id="footer">
+    <p>
+      <a href="https://sinceyouarrived.world/now">Vol. I</a> is what the world did while you were here.
+      <a href="https://sinceyouarrived.world/sky">Vol. II</a> is the sky you missed.
+      <a href="https://sinceyouarrived.world/discovered">Vol. III</a> is what was already at your feet.
+      This was Vol. IV. We thought you should know. <a href="https://sinceyouarrived.world/taken/agents">The agents agreed.</a>
+    </p>
+    <p>
+      <a href="https://sinceyouarrived.world/distance">Vol. V</a> is the place no one is reading.
+    </p>
+    <div class="footer-meta" id="footer-edition">Vol. IV · April 2026</div>
+    <div class="colophon-made">Created by <a href="https://bsky.app/profile/sinceyouarrived.world" target="_blank" rel="noopener noreferrer">Matt</a> at <a href="https://riseuplabs.app/" target="_blank" rel="noopener noreferrer">Rise Up Labs</a>.<br><a href="https://bsky.app/profile/sinceyouarrived.world" target="_blank" rel="noopener noreferrer">@sinceyouarrived.world</a> on Bluesky.</div>
+  </div>
+</div>
+
+<div class="live-counter" id="liveCounter"></div>
+<div class="tab-notice" id="tabNotice"></div>
+
+<!-- ─────────────── Share Modal ─────────────── -->
+<div class="share-modal" id="shareModal" role="dialog" aria-modal="true" aria-labelledby="shareHeading">
+  <div class="share-card-wrap">
+    <div class="share-kicker" id="shareHeading">— Tell Someone —</div>
+    <div class="share-preview">
+      <div class="share-preview-label">What this page knew</div>
+      <p class="share-preview-headline" id="share-preview-headline">A web page just told me everything it learned about me without asking.</p>
+      <div class="share-preview-tally" id="share-preview-tally"></div>
+    </div>
+    <div class="share-btns">
+      <button class="seal-btn" onclick="doShare('x')">𝕏 (Twitter)</button>
+      <button class="seal-btn" onclick="doShare('bluesky')">Bluesky</button>
+      <button class="seal-btn" onclick="doShare('linkedin')">LinkedIn</button>
+      <button class="seal-btn" onclick="doShare('facebook')">Facebook</button>
+      <button class="seal-btn" onclick="doShare('reddit')">Reddit</button>
+      <button class="seal-btn" onclick="doShare('whatsapp')">WhatsApp</button>
+      <button class="seal-btn full-row" id="copy-link-btn" onclick="doShare('copy')">Copy Link</button>
+    </div>
+    <div class="share-close-row">
+      <button class="share-close" id="shareCloseBtn" type="button">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─────────────── Sources & Confessions Modal ─────────────── -->
+<div class="modal" id="sourcesModal" role="dialog" aria-modal="true" aria-labelledby="sourcesHeading">
+  <div class="sources-card">
+    <div class="sources-kicker">— A Note On What You Gave —</div>
+    <h2 class="sources-title" id="sourcesHeading">Sources &amp; Confessions</h2>
+    <div class="sources-sub">Every observation on this page came from your own browser, in the first milliseconds after you arrived. The words were written by a human. A few honest footnotes follow.</div>
+
+    <ul class="source-list">
+      <li class="source-item">
+        <div class="source-label">Your location</div>
+        <div class="source-cite"><a href="https://ip-api.com" target="_blank" rel="noopener noreferrer">ip-api.com · Free tier · CC-BY-SA</a></div>
+        <div class="source-note">Your IP address arrives in the header of every request your device makes. We pass it to ip-api.com to translate it into a city and an internet provider name. The lookup is transient. Neither side stores it. Under GDPR, an IP address can be considered personal data when used for tracking. We do not track. We do not retain. We do not log. We display only the first and last octet on screen. We know the rest. We chose not to display it.</div>
+      </li>
+      <li class="source-item">
+        <div class="source-label">Browser APIs</div>
+        <div class="source-cite"><a href="https://developer.mozilla.org/en-US/docs/Web/API" target="_blank" rel="noopener noreferrer">MDN Web Docs · Mozilla · CC-BY-SA 2.5</a></div>
+        <div class="source-note">Every observation about your device (screen, browser, language, GPU, cores, battery, fonts, preferences) was retrieved through standard JavaScript APIs documented openly by Mozilla. No exploits, no vulnerabilities, no hacks. Everything on this page is by design. The design is the problem.</div>
+      </li>
+      <li class="source-item">
+        <div class="source-label">Font fingerprinting</div>
+        <div class="source-cite"><a href="https://coveryourtracks.eff.org/" target="_blank" rel="noopener noreferrer">Electronic Frontier Foundation · Cover Your Tracks (formerly Panopticlick)</a></div>
+        <div class="source-note">The technique of detecting installed fonts by measuring rendered text widths has been documented since 2010. The EFF maintains a tool that lets you see how unique your browser is. Most browsers are unique enough to be tracked across the open web without any cookie at all. The combination of fonts is one of the strongest signals.</div>
+      </li>
+      <li class="source-item">
+        <div class="source-label">Canvas fingerprinting</div>
+        <div class="source-cite"><a href="https://webtransparency.cs.princeton.edu/" target="_blank" rel="noopener noreferrer">Princeton University · Web Transparency &amp; Accountability Project</a></div>
+        <div class="source-note">A 2014 study from Princeton was the first to document canvas fingerprinting in the wild. Researchers found it on 5% of the top 100,000 websites: pages that secretly asked the visitor's browser to draw a hidden image, then read the rendered pixels back as an identifier. Your browser supports the technique. We did not draw one. The page you visit after this one might.</div>
+      </li>
+      <li class="source-item">
+        <div class="source-label">Clipboard API</div>
+        <div class="source-cite"><a href="https://developer.mozilla.org/en-US/docs/Web/API/Clipboard_API" target="_blank" rel="noopener noreferrer">MDN · Clipboard API specification</a></div>
+        <div class="source-note">With a single user gesture (a click, a tap), a page can request to read the last thing you copied. A password. An address. A draft message. The capability is announced by every modern browser. We did not request it. The capability is there, available to any page that asks at the right moment.</div>
+      </li>
+      <li class="source-item">
+        <div class="source-label">The battery research</div>
+        <div class="source-cite">Olejnik, Englehardt, Narayanan · 2015 · "The Leaking Battery"</div>
+        <div class="source-note">Published in the proceedings of the Workshop on Data Privacy Management. The paper demonstrated that the combination of battery percentage and discharge time was unique enough to track a visitor across multiple websites for up to thirty minutes. Without cookies, without accounts. Firefox removed the API in 2016. Chrome and Edge still expose it.</div>
+      </li>
+      <li class="source-item">
+        <div class="source-label">The technique we did not run</div>
+        <div class="source-cite">Documented · Legal · Widely deployed</div>
+        <div class="source-note">A page can detect which sites you are logged into by asking your browser to load favicon URLs from those sites and watching which succeed and which fail. Logged-in services return one image; logged-out services return another. The technique requires no permission. With it, a page can know, without asking, whether you are logged into Facebook, Google, X, GitHub, Reddit, LinkedIn, and dozens of others. We did not run this. The technique is documented and legal. Some of the pages you visited today did.</div>
+      </li>
+      <li class="source-item">
+        <div class="source-label">The barcode</div>
+        <div class="source-cite">Computed in your browser · 16 bars · Yours alone</div>
+        <div class="source-note">Beneath the count, sixteen hairlines whose heights are derived from the data your device handed over: your GPU, your fonts, your screen size, your language, your timezone, your operating system, your browser, your color depth. Same data, same barcode. Different visitor, different barcode. The computation happens in your browser; nothing about it is transmitted. Anyone with your exact fingerprint would see the same bars. The likelihood is small.</div>
+      </li>
+      <li class="source-item">
+        <div class="source-label">The prose</div>
+        <div class="source-cite">Hand-written · Template-based, not generative</div>
+        <div class="source-note">Every sentence on this page was written by Matt. The code selects among prose templates based on what your browser returned. No language model writes or rewrites anything at runtime. If a condition is not covered by hand-written prose, the page stays quiet about it. We'd rather say less than say something false.</div>
+      </li>
+      <li class="source-item">
+        <div class="source-label">What this page sent</div>
+        <div class="source-cite">Two anonymous events to our server</div>
+        <div class="source-note">Two events: that you arrived, that you finished. No cookie, no identifier, no IP retained. Our server discards the body of each request and returns nothing. The transport-level record that the request happened exists in our hosting provider's logs for as long as their default retention runs (typically a few days). We did not configure that. Every site you visit has the same record. Most also send hundreds of additional beacons to advertisers, fingerprinters, session-replay tools, and tag managers. We send two, to ourselves, and tell you about them.</div>
+      </li>
+      <li class="source-item">
+        <div class="source-label">What this page stored on your device</div>
+        <div class="source-cite">Nothing</div>
+        <div class="source-note">No cookies. No localStorage. No sessionStorage. No IndexedDB. No service worker cache. The data you saw was computed in your browser and never left your device, except for the IP geolocation lookup and the two anonymous events above. When you close this tab, this page forgets you exist. We are the only page you will visit today that can say this honestly.</div>
+      </li>
+      <li class="source-item">
+        <div class="source-label">Companion volumes</div>
+        <div class="source-cite"><a href="/now" rel="noopener">sinceyouarrived.world/now</a> · <a href="/sky" rel="noopener">/sky</a> · <a href="/discovered" rel="noopener">/discovered</a> · <a href="/distance" rel="noopener">/distance</a></div>
+        <div class="source-note">Vol. I is what the world did while you were here. Vol. II is the sky you missed. Vol. III is what was already at your feet. This was Vol. IV. The series zooms in with each volume: global, to city, to coordinates, to you. You may have noticed the path it was walking.</div>
+      </li>
+    </ul>
+
+    <div class="sources-foot">
+      Open the source. Read it. <code>Cmd+U</code> on Mac, <code>Ctrl+U</code> on Windows or Linux. Or right-click anywhere and choose &ldquo;View page source.&rdquo; Everything described above is in the page you are reading. We have nothing to hide. Most pages cannot say that.
+      <br><br>
+      <em>Future editions will appear on <a href="https://x.com/sinceyouarrived" target="_blank" rel="noopener">X</a> and <a href="https://bsky.app/profile/sinceyouarrived.world" target="_blank" rel="noopener">Bluesky</a>.</em>
+    </div>
+
+    <button class="sources-close" id="sourcesCloseBtn" type="button">Close</button>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+/* ============================================================
+   STATE
+   ============================================================ */
+
+const T0 = performance.now();
+const ARRIVAL = new Date();
+const SHARE_URL = 'https://sinceyouarrived.world/taken';
+
+/* ── Locale auto-detect ─────────────────────────────── */
+const LOCALE = (navigator.language || '').startsWith('zh') ? 'zh' : 'en';
+const TX = {}; // will be populated below
+
+let tabSwitches = 0;
+let scrollMax = 0;
+let mouseMovements = 0;
+let clicks = 0;
+let dataPoints = 0;
+let counterVisible = false;
+let tabLeftAt = null;
+let scrollPauses = 0;
+let pauseStart = null;
+let longestPause = 0;
+let totalBehavioralEvents = 0;
+let prefersReducedMotion = false;
+try { prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+
+/* ── i18n: Chinese (zh) text ──────────────────────────── */
+const ZH = {
+
+  /* Intro */
+  seriesLabel: '自从你到来 · 第四卷',
+  title: '被取走',
+  introLine: '你打开了这个页面。它已经知道了以下这些。',
+  scanning: '读取中',
+
+  /* Noscript */
+  noscriptHead: '自从你到来 · 第四卷',
+  noscriptH1: '被取走',
+  noscriptP1: '本卷需要 JavaScript。这本身就是重点——被读取的是你的浏览器。',
+  noscriptP2: '关闭 JavaScript 后，页面无法告诉你浏览器透露了什么。数据仍在被收集。信息仍在被泄露。只是停止了对你的告知。',
+
+  /* Footer */
+  footerVol1: '第一卷',
+  footerVol1Desc: '是你在此期间的世界上发生的事。',
+  footerVol2: '第二卷',
+  footerVol2Desc: '是你错过的天空。',
+  footerVol3: '第三卷',
+  footerVol3Desc: '是你脚下已有的东西。',
+  footerVol4: '这是第四卷。我们认为你应该知道。',
+  footerAgents: '特工们同意。',
+  footerVol5: '第五卷',
+  footerVol5Desc: '是无人阅读之处。',
+  footerEdition: '第四卷 · 2026年4月',
+  footerCreated: '由 Matt 创作于',
+  footerBluesky: '在 Bluesky 上关注',
+
+  /* Tab notice */
+  tabNotice: (s) => '你离开了 ' + s + ' 秒。我们注意到了。',
+
+  /* Live counter */
+  liveCounter: (sec, scroll, tabs, tabLabel, movements, clickCount) =>
+    '<span>' + sec + '秒</span> 停留 · ' +
+    '<span>' + scroll + '%</span> 滚动 · ' +
+    '<span>' + tabs + '</span> 次切换标签 · ' +
+    '<span>' + movements + '</span> 次移动 · ' +
+    '<span>' + clickCount + '</span> 次点击',
+
+  /* Observations */
+
+  whereYouAre: (d) => ({
+    label: '你所处的位置',
+    datum: d.geo.city + '，' + d.geo.regionName + '，' + d.geo.country,
+    prose: '你似乎位于' + d.geo.city + '、' + d.geo.country + '。你的网络服务提供商是' + d.geo.isp + '。我们之所以知道这些，是因为你的 IP 地址——' + maskIp(d.geo.query) + '——是你的设备最先发送给我们的信息。我们知道完整的地址。我们选择了不完全显示。多数网页不会做这个选择。我们没有询问你的位置。你的地址在你到达之前就已经到了。'
+  }),
+
+  /* Chinese time-of-day mapping */
+  timeOfDayZh: (hour) => {
+    if      (hour >= 5  && hour < 8)  return '清晨';
+    else if (hour >= 8  && hour < 12) return '上午';
+    else if (hour >= 12 && hour < 14) return '中午';
+    else if (hour >= 14 && hour < 17) return '下午';
+    else if (hour >= 17 && hour < 20) return '傍晚';
+    else if (hour >= 20 && hour < 23) return '晚间';
+    else if (hour >= 23 || hour < 2)  return '深夜';
+    else                              return '凌晨';
+  },
+
+  /* Chinese device type mapping */
+  deviceTypeZh: (dt) => {
+    if      (dt === 'a computer') return '电脑';
+    else if (dt === 'a phone')    return '手机';
+    else if (dt === 'a tablet')   return '平板电脑';
+    return dt;
+  },
+
+  whenYouArrived: (d) => ({
+    label: '你到达的时间',
+    datum: String(d.hour).padStart(2, '0') + ':' + String(d.minute).padStart(2, '0') + ' · ' + d.tzPretty,
+    prose: '你那里现在是' + ZH.timeOfDayZh(d.hour) + '。你的设备在页面加载完成之前就已经报告了你的时区。一个网站知道了你的当地时间，就能推断出你何时睡觉、何时工作、何时因无法入睡而浏览网页。这一切都不需要经过请求。这些信息不请自来。'
+  }),
+
+  whatYouBrought: (d) => {
+    const screenLooksMasked = d.screenW === d.innerW && d.screenH === d.innerH;
+    const browserKnown = d.browser !== 'a browser';
+    const osKnown      = d.os !== 'an operating system';
+    const devStr = (browserKnown ? d.browser : '?') + ' · ' + (osKnown ? d.os : '?') + ' · ' + d.screenW + '×' + d.screenH + ' @ ' + d.pixelRatio + 'x · ' + d.colorDepth + '-bit 色彩';
+    const deviceZh = ZH.deviceTypeZh(d.deviceType);
+    let devP;
+    if (browserKnown && osKnown) {
+      devP = '你在' + deviceZh + '上阅读此页面，运行着' + d.os + '。你的浏览器是' + d.browser + '。你的屏幕是' + d.screenW + '×' + d.screenH + '像素';
+    } else if (osKnown) {
+      devP = '你在' + deviceZh + '上阅读此页面，运行着' + d.os + '。你的浏览器隐藏了身份——这本身就是一种特征。你的屏幕是' + d.screenW + '×' + d.screenH + '像素';
+    } else if (browserKnown) {
+      devP = '你在' + d.browser + '中阅读此页面。你的操作系统没有透露自己——大多数浏览器都会告诉我们，但你的没有。你的屏幕是' + d.screenW + '×' + d.screenH + '像素';
+    } else {
+      devP = '你的设备保持了沉默——我们无法识别你的浏览器或操作系统。这种统一性本身就是一种更柔和的指纹。你的屏幕是' + d.screenW + '×' + d.screenH + '像素';
+    }
+    const looksModern = d.pixelRatio >= 2 && Math.max(d.screenW, d.screenH) >= 390;
+    if      (looksModern)        devP += '，以' + d.pixelRatio + 'x 密度渲染——这几乎肯定是一块较新的高端屏幕。';
+    else if (d.pixelRatio > 1)   devP += '，以' + d.pixelRatio + 'x 密度渲染。';
+    else                         devP += '。';
+    if (screenLooksMasked) devP += '或者更准确地说，你的窗口尺寸就是如此。你的浏览器似乎用视口尺寸替代了真实屏幕——这是反指纹追踪的效果。但这种替代本身也是一种特征。';
+    if (d.touch > 0) devP += '你的屏幕支持 ' + d.touch + ' 点同时触控。';
+    devP += '你的设备在连接的头几毫秒内就自愿交出了所有这些信息。在你访问的下一个页面上它会重蹈覆辙，再下一个也是。';
+    return { label: '你带来的信息', datum: devStr, prose: devP };
+  },
+
+  gpu: (gpuShort) => ({
+    label: '渲染你世界的东西',
+    datum: gpuShort,
+    prose: '你的图形处理器自称是' + gpuShort + '。这告诉我们制造商、代次和大致的设备价格区间。结合你的屏幕尺寸和字体列表，仅这一条字符串就能将你的设备与互联网上绝大多数设备区分开来。这项技术被称为 WebGL 指纹识别。不需要任何权限。'
+  }),
+
+  gpuMasked: () => ({
+    label: '渲染你世界的东西',
+    datum: 'GPU：已隐藏',
+    prose: '你的浏览器隐藏了图形处理器。Firefox 和 Safari 已经开始返回通用字符串——"Mozilla"、"Apple"、"or similar"——来代替真实的渲染器标识。你的浏览器做了隐藏这一事实，本身就相当可靠地告诉我们你在用哪个浏览器。面具本身也是一种指纹。'
+  }),
+
+  battery: (d) => {
+    const chg = d.battery.charging ? '充电中' : '未充电';
+    let bP;
+    if (d.battery.indistinguishable) {
+      bP = '你的设备报告电量为 100%，正在充电——这恰好也是没有电池的台式机会显示的信息。我们无法判断你是一台充满电的笔记本电脑，还是一台根本没有电池的台式机，其他任何网站也无法判断。从我们这边看，两者无法区分。';
+    } else {
+      bP = '你的电池剩余 ' + d.battery.level + '%。目前' + chg + '。';
+    }
+    bP += '2015 年，研究人员证明，电池电量加上放电时间足以在长达三十分钟的时间内跨网站追踪用户。你此刻的精确电量就是一枚指纹。Firefox 在 2016 年移除了这个 API。你的浏览器仍然将其暴露在外。';
+    return { label: '还剩多少', datum: '电池：' + d.battery.level + '% · ' + chg, prose: bP };
+  },
+
+  batteryHidden: () => ({
+    label: '还剩多少',
+    datum: '电池：已隐藏',
+    prose: '你的浏览器隐藏了电池电量。Firefox 在 2016 年彻底移除了这个 API——因为研究人员证明它可以在无需 Cookie、无需同意的情况下跨网站追踪访问者。这个 API 在规范中仍然存在。它只是被藏起来了——对你藏起来了，也对任何可能询问它的页面藏起来了。'
+  }),
+
+  whatYouSpeak: (d) => {
+    let langStr = d.langPretty;
+    if (d.otherLangs.length > 0) langStr += ' · ' + d.otherLangs.join(' · ');
+    let lP = '你浏览器的首选语言是' + d.langPretty + '。';
+    if (d.otherLangs.length > 0) lP += '它还携带了' + d.otherLangs.join('、') + '。这告诉我们的不仅是你说什么语言，还常常包括你在哪里长大、在哪里生活过、或者你和谁住在一起。';
+    lP += '这些信息在每个 HTTP 请求的标头中都会传输。从你第一次使用这个浏览器起，它就一直在这样做。';
+    return { label: '你说什么语言', datum: langStr, prose: lP };
+  },
+
+  orientation: (beta, posture, orientationBlocked, coarseOrientation) => {
+    if (beta !== undefined) {
+      let postureZh = '倾斜着';
+      if      (beta > 70) postureZh = '几乎竖直——你可能正拿着它看';
+      else if (beta > 40) postureZh = '倾斜着——你也许正坐着';
+      else if (beta < 20) postureZh = '几乎水平——你可能正躺着';
+      return {
+        label: '你如何拿着它',
+        datum: beta + '° 偏离水平',
+        prose: '你的设备' + postureZh + '。陀螺仪在未经你许可的情况下报告了这些信息。一个网站可以推断出你是站着、坐着、走路还是躺在床上。我们可以做到。我们选择不多说。'
+      };
+    }
+    if (orientationBlocked) {
+      let line = '你的设备保留了陀螺仪读数。苹果在 2019 年添加了这一限制——因为研究人员证明，网页可以在未经许可的情况下读取陀螺仪，并通过振动反推你在另一台设备上的按键输入。这条保护仅适用于运动传感器。你页面上其他所有信息，你的设备都主动交了出来。';
+      if (coarseOrientation) {
+        line += '不过，你的屏幕方向是' + coarseOrientation.replace(/-/g, ' ') + '。这个信号不需要任何权限，你的设备主动告知了。';
+      }
+      return {
+        label: '你如何拿着它',
+        datum: '陀螺仪：已由 iOS 保留',
+        prose: line
+      };
+    }
+    return null;
+  },
+
+  fonts: (d) => {
+    const stockOS = d.os === 'iOS' || d.os === 'Android';
+    let fP;
+    if (stockOS) {
+      fP = '你的设备拥有这些字型（从常用于指纹检测的十七种字体中检出）。在' + d.os + '上，默认字体集在相同系统版本的设备间基本一致，因此仅凭字体列表只能弱识别你。但结合你的 GPU、屏幕尺寸、语言和时区，它仍然能大大缩小范围。';
+    } else {
+      fP = '你的设备拥有这些字型（从常用于指纹检测的十七种字体中检出）。在桌面端，具体的字体组合往往几乎独一无二——字体随着应用安装和系统更新不断累积，最终形成的集合就是由字母构成的指纹。';
+    }
+    fP += '广告网络将它与你的屏幕尺寸、语言、时区和 GPU 结合起来，无需 Cookie、无需账户、无需姓名就能跨网站识别设备。这项技术叫做浏览器指纹识别。在大多数司法管辖区它是合法的。在你访问的大多数页面上它都在运行。但没有任何页面会提及它。';
+    return {
+      label: '你携带了什么',
+      datum: d.installed.join(' · '),
+      prose: fP
+    };
+  },
+
+  whatYouAllow: (d) => {
+    const allowParts = [];
+    allowParts.push(d.cookiesEnabled ? 'Cookie：已启用' : 'Cookie：已禁用');
+    allowParts.push(d.darkMode ? '深色模式' : '浅色模式');
+    if (d.reducedMotion) allowParts.push('减少动效');
+    if (d.doNotTrack)    allowParts.push('请勿追踪');
+    if (d.storage)       allowParts.push('其他网站已存储 ' + d.storage.used + ' MB');
+
+    let stP = '';
+    if (d.cookiesEnabled) {
+      stP += '你的浏览器接受 Cookie。网站可以在你的设备上写入小文件，在你离开后仍然存在——这些文件在你回来时能识别你，跟随你跨越网站，记住你看了什么、差点买了什么、犹豫了多久。我们没有写入任何 Cookie。';
+    } else {
+      stP += '你的浏览器已禁用 Cookie。这很不寻常。你是刻意做出的选择，或者有人替你配置了它。无论是哪种，你的设备让网络的其他部分更难记住你。';
+    }
+    if (d.storage) {
+      let quotaStr;
+      if (d.storage.quota >= 1024) {
+        const gb = d.storage.quota / 1024;
+        quotaStr = (gb >= 10 ? Math.round(gb) : gb.toFixed(1)) + ' GB';
+      } else {
+        quotaStr = d.storage.quota + ' MB';
+      }
+      stP += '你的浏览器允许此页面在你的设备上写入最多 ' + quotaStr + ' 的数据——一个只属于我们的私人空间，如同每个你访问的网站都拥有的那样。我们让它空着。大多数网站不会。';
+    }
+    stP += '你喜欢' + (d.darkMode ? '深色' : '浅色') + '界面——你的操作系统告诉了我们。';
+    if (d.reducedMotion) {
+      stP += '你或你的系统请求了减少动效。这可能是偏好设置。也可能是医疗需求。无论是哪种，我们都清楚。';
+    }
+    if (d.doNotTrack) {
+      stP += '你要求不被追踪。你的浏览器在每次加载页面时都会发送这个请求。几乎没有网站会遵守它。这个标准自 2009 年就已存在，但从未具有可执行性。讽刺的是，对隐私的偏好只是我们了解你的又一条信息。';
+    } else {
+      stP += '你没有启用"请勿追踪"。这是默认状态。它意味着要么你选择了不启用，要么你不知道它的存在，要么你知道它也无济于事。这三种可能性都是信息。';
+    }
+    stP += '此页面不会在你的设备上存储任何内容。当你关闭这个标签页时，它会忘记你曾经存在过。';
+    return { label: '你允许了什么', datum: allowParts.join(' · '), prose: stP };
+  },
+
+  referrer: (ref) => ({
+    label: '你之前在哪里',
+    datum: ref,
+    prose: '你从 ' + ref + ' 来到这里。你的浏览器告诉了我们你之前阅读的页面地址。你点击的每个链接都会告知目标页面你从哪里来。你刚刚离开的页面知道你离开了。这个页面知道你来自哪里。没有人问过任何一方。'
+  }),
+
+  /* Closing */
+  tallyLabel: '条数据',
+  tallyLine: '0 个问题 &nbsp;·&nbsp; 0 字节存储在你的设备上',
+
+  thesis1: '你访问过的每一个页面至少都知道这么多。',
+  thesis2: '它们中的大多数知道得更多。',
+  thesis3: '没有任何一个页面告诉过你。',
+
+  behavioralLabel: '还有一件事',
+  behavioralDatum: '你还在这里。',
+  behavioralBody: (elapsed, isTouch, longestPause, tabSwitches, mouseMovements, clicks) => {
+    const moveWord = isTouch ? '次手指移动' : '次鼠标移动';
+    const pauseNote = longestPause > 3
+      ? ' 你在一处停留了 ' + longestPause.toFixed(0) + ' 秒——比其他地方都长。'
+      : '';
+    const tabNote = tabSwitches > 0
+      ? '你离开了 ' + tabSwitches + ' 次，每次都回来了。我们注意到了每一次离开。'
+      : '你从未离开这个标签页。我们本来也会注意到的，如果你离开过的话。';
+    const cursorNote = mouseMovements > 20
+      ? '你的' + (isTouch ? '手指' : '光标') + '移动了 ' + mouseMovements.toLocaleString() + ' 次。'
+      : '';
+    const clickNote = clicks > 1
+      ? '你' + (isTouch ? '点击' : '点击') + '了 ' + clicks + ' 次。'
+      : '';
+
+    return '你在这个页面上停留了 ' + elapsed + ' 秒。你滚动了 ' + scrollMax + '% 的页面长度。' +
+      tabNote + cursorNote + clickNote + pauseNote +
+      '我们没有在数。我们一直在数。';
+  },
+
+  finalTime: (elapsed) => '它在 ' + elapsed + ' 秒内完成了这一切。',
+  finalTag: '这就是免费所付出的代价。',
+
+  viewSource: '打开源代码。阅读它。我们没有什么好隐藏的。大多数页面说不出这句话。',
+  tellSomeone: '告诉别人',
+  sourcesAndConfessions: '来源与说明',
+
+  /* Share modal */
+  shareHeading: '— 告诉别人 —',
+  sharePreviewLabel: '这个页面知道了什么',
+  sharePreviewHeadline: '一个网页刚刚在未经请求的情况下告诉了我它了解到的关于我的一切。',
+  shareCopyLink: '复制链接',
+  shareCopied: '已复制 ✓',
+  shareClose: '关闭',
+
+  /* Sources modal */
+  sourcesKicker: '— 关于你给出的一切 —',
+  sourcesTitle: '来源与说明',
+  sourcesSub: '此页面上的每一条观察都来自你自己的浏览器，在你到达后的头几毫秒内。文字由人类撰写。以下是几个坦诚的注释。',
+
+  sourcesLocation: { label: '你的位置', note: '你的 IP 地址在每次请求的标头中都会发送。我们将其传递给 ip-api.com 以翻译为城市和网络服务提供商名称。查询是瞬时的。双方均不存储。根据 GDPR，IP 地址在用于追踪时可被视为个人数据。我们不追踪。我们不保留。我们不记录。我们只在屏幕上显示首位和末位八位。我们知道完整的地址。我们选择了不显示。' },
+  sourcesBrowserAPI: { label: '浏览器 API', note: '关于你设备的每一条观察（屏幕、浏览器、语言、GPU、核心数、电池、字体、偏好设置）都是通过 JavaScript 标准 API 获取的，这些 API 由 Mozilla 公开文档化。没有利用漏洞，没有安全问题，没有黑客手段。此页面上的所有内容都是设计如此。设计本身才是问题所在。' },
+  sourcesFontFP: { label: '字体指纹识别', note: '通过测量渲染文本宽度来检测已安装字体的技术自 2010 年以来就已被记录。EFF 维护了一个工具，可以让你看到自己的浏览器在互联网上有多么独特。大多数浏览器的独特程度足以在完全没有 Cookie 的情况下被跨开放网络追踪。字体组合是最强的信号之一。' },
+  sourcesCanvasFP: { label: 'Canvas 指纹识别', note: '2014 年普林斯顿大学的一项研究首次记录了 canvas 指纹识别在真实网络环境中的使用。研究人员在前 10 万个热门网站中的 5% 上发现了它：那些页面秘密地要求访问者的浏览器绘制一张隐藏图像，然后将渲染出的像素读回作为一个标识符。你的浏览器支持这项技术。我们没有绘制。你接下来访问的页面可能会。' },
+  sourcesClipboard: { label: '剪贴板 API', note: '只需要一个用户操作（一次点击、一次触摸），页面就可以请求读取你最近复制的内容。密码。地址。消息草稿。每个现代浏览器都会告知这项能力的可用性。我们没有请求它。这个能力就在那里，随时可以被任何在恰当时机请求的页面使用。' },
+  sourcesBattery: { label: '电池研究', note: 'Olejnik、Englehardt、Narayanan · 2015 · "泄漏的电池"。该论文证明，电池百分比加上放电时间的组合足以在长达三十分钟的时间内跨网站追踪访问者，无需 Cookie，无需账户。Firefox 于 2016 年移除了该 API。Chrome 和 Edge 仍然暴露它。' },
+  sourcesNotRun: { label: '我们没有执行的技术', note: '一个页面可以通过要求你的浏览器加载特定网站的 favicon URL 并观察哪些成功、哪些失败，来检测你登录了哪些网站。已登录的服务返回一种图片，未登录的返回另一种。这项技术不需要任何权限。利用它，页面无需提问就能知道你是否登录了 Facebook、Google、X、GitHub、Reddit、LinkedIn 等数十个服务。我们没有执行它。这项技术已被记录且合法。你今天访问的一些页面执行了。' },
+  sourcesBarcode: { label: '条形码', note: '数字下方的十六条细线，其高度由你的设备交出的数据派生而来：你的 GPU、你的字体、你的屏幕尺寸、你的语言、你的时区、你的操作系统、你的浏览器、你的色彩深度。相同的数据产生相同的条形码。不同的访问者产生不同的条形码。计算在你的浏览器中完成；没有关于它的任何信息被发送。任何拥有与你完全相同的指纹的人会看到相同的线条。这种可能性极小。' },
+  sourcesProse: { label: '文字', note: '此页面上的每一句话都是 Matt 亲自撰写的。代码根据你的浏览器返回的数据选择合适的文字模板。没有语言模型在运行时生成或改写任何内容。如果某种情况没有对应的手写文字覆盖，页面就保持沉默。我们宁愿少说，也不愿说错。' },
+  sourcesSent: { label: '此页面发送了什么', note: '两个事件：你到达了，你完成了。没有 Cookie，没有标识符，没有保留 IP。我们的服务器丢弃了每次请求的正文，不返回任何内容。请求存在的传输层记录会保留在我们的托管服务提供商的日志中，按他们的默认保留期限（通常几天）。我们没有配置这个。你访问的每个网站都有同样的记录。大多数网站还会向广告商、指纹识别公司、会话回放工具和标签管理器发送数百个额外的信标。我们只发送两个，发送给我们自己，并且告诉你。' },
+  sourcesStored: { label: '此页面在你的设备上存储了什么', note: '什么都没有。没有 Cookie。没有 localStorage。没有 sessionStorage。没有 IndexedDB。没有 Service Worker 缓存。你看到的数据在你的浏览器中计算完成，除了 IP 地理定位查询和两个匿名事件外，从未离开过你的设备。当你关闭这个标签页时，此页面就会忘记你的存在。我们是你今天唯一一个能诚实说出这句话的页面。' },
+  sourcesCompanion: { label: '系列各卷', note: '第一卷是世界在你逗留期间发生的事。第二卷是你错过的天空。第三卷是你脚下已有的东西。这是第四卷。这个系列每卷的焦点都在拉近：全球，到城市，到坐标，到你。你可能已经注意到它一直在走的路径。' },
+
+  sourcesFoot: '打开源代码。阅读它。Cmd+U（Mac）或 Ctrl+U（Windows/Linux）。或者右键点击任意处选择"查看页面源代码"。上述所有内容都在你正在阅读的这个页面中。我们没有什么好隐藏的。大多数页面说不出这句话。',
+  sourcesFootFuture: '后续版本将在 <a href="https://x.com/sinceyouarrived" target="_blank" rel="noopener">X</a> 和 <a href="https://bsky.app/profile/sinceyouarrived.world" target="_blank" rel="noopener">Bluesky</a> 上发布。',
+  sourcesClose: '关闭',
+
+  /* Action buttons */
+  shareX: '𝕏（Twitter）',
+  shareBluesky: 'Bluesky',
+  shareLinkedIn: 'LinkedIn',
+  shareFacebook: 'Facebook',
+  shareReddit: 'Reddit',
+  shareWhatsApp: 'WhatsApp',
+
+  /* Share text */
+  shareText: '一个网页刚刚在未经请求的情况下告诉了我它了解到的关于我的一切。它知道我的城市、我的设备、我的 GPU，以及我在滚动前犹豫了多久。',
+};
+
+/* Set text function */
+function t(key) { return (TX[key] !== undefined) ? TX[key] : key; }
+
+/* English text for t() lookups */
+const EN = {
+  tallyLabel: 'data points',
+  tallyLine: '0 questions asked &nbsp;·&nbsp; 0 bytes stored on your device',
+  thesis1: 'Every page you have ever visited knows at least this much.',
+  thesis2: 'Most of them know more.',
+  thesis3: 'None of them told you.',
+  behavioralLabel: 'And one more thing',
+  behavioralDatum: 'You are still here.',
+  finalTag: 'This is what free costs.',
+  viewSource: 'Open the source. Read it. We have nothing to hide. Most pages cannot say that.',
+  tellSomeone: 'tell someone',
+  sourcesAndConfessions: 'sources & confessions',
+  shareCopyLink: 'Copy Link',
+  shareCopied: 'Copied ✓',
+  shareClose: 'Close',
+  shareHeading: '— Tell Someone —',
+  sharePreviewLabel: 'What this page knew',
+  sharePreviewHeadline: 'A web page just told me everything it learned about me without asking.',
+  shareX: '𝕏 (Twitter)',
+  shareBluesky: 'Bluesky',
+  shareLinkedIn: 'LinkedIn',
+  shareFacebook: 'Facebook',
+  shareReddit: 'Reddit',
+  shareWhatsApp: 'WhatsApp',
+  sourcesKicker: '— A Note On What You Gave —',
+  sourcesTitle: 'Sources &amp; Confessions',
+  sourcesSub: 'Every observation on this page came from your own browser, in the first milliseconds after you arrived. The words were written by a human. A few honest footnotes follow.',
+  sourcesLocation: { label: 'Your location', note: 'Your IP address arrives in the header of every request your device makes. We pass it to ip-api.com to translate it into a city and an internet provider name. The lookup is transient. Neither side stores it. Under GDPR, an IP address can be considered personal data when used for tracking. We do not track. We do not retain. We do not log. We display only the first and last octet on screen. We know the rest. We chose not to display it.' },
+  sourcesBrowserAPI: { label: 'Browser APIs', note: 'Every observation about your device (screen, browser, language, GPU, cores, battery, fonts, preferences) was retrieved through standard JavaScript APIs documented openly by Mozilla. No exploits, no vulnerabilities, no hacks. Everything on this page is by design. The design is the problem.' },
+  sourcesFontFP: { label: 'Font fingerprinting', note: 'The technique of detecting installed fonts by measuring rendered text widths has been documented since 2010. The EFF maintains a tool that lets you see how unique your browser is. Most browsers are unique enough to be tracked across the open web without any cookie at all. The combination of fonts is one of the strongest signals.' },
+  sourcesCanvasFP: { label: 'Canvas fingerprinting', note: 'A 2014 study from Princeton was the first to document canvas fingerprinting in the wild. Researchers found it on 5% of the top 100,000 websites: pages that secretly asked the visitor\'s browser to draw a hidden image, then read the rendered pixels back as an identifier. Your browser supports the technique. We did not draw one. The page you visit after this one might.' },
+  sourcesClipboard: { label: 'Clipboard API', note: 'With a single user gesture (a click, a tap), a page can request to read the last thing you copied. A password. An address. A draft message. The capability is announced by every modern browser. We did not request it. The capability is there, available to any page that asks at the right moment.' },
+  sourcesBattery: { label: 'The battery research', note: 'Olejnik, Englehardt, Narayanan · 2015 · "The Leaking Battery". Published in the proceedings of the Workshop on Data Privacy Management. The paper demonstrated that the combination of battery percentage and discharge time was unique enough to track a visitor across multiple websites for up to thirty minutes. Without cookies, without accounts. Firefox removed the API in 2016. Chrome and Edge still expose it.' },
+  sourcesNotRun: { label: 'The technique we did not run', note: 'A page can detect which sites you are logged into by asking your browser to load favicon URLs from those sites and watching which succeed and which fail. Logged-in services return one image; logged-out services return another. The technique requires no permission. With it, a page can know, without asking, whether you are logged into Facebook, Google, X, GitHub, Reddit, LinkedIn, and dozens of others. We did not run this. The technique is documented and legal. Some of the pages you visited today did.' },
+  sourcesBarcode: { label: 'The barcode', note: 'Beneath the count, sixteen hairlines whose heights are derived from the data your device handed over: your GPU, your fonts, your screen size, your language, your timezone, your operating system, your browser, your color depth. Same data, same barcode. Different visitor, different barcode. The computation happens in your browser; nothing about it is transmitted. Anyone with your exact fingerprint would see the same bars. The likelihood is small.' },
+  sourcesProse: { label: 'The prose', note: 'Every sentence on this page was written by Matt. The code selects among prose templates based on what your browser returned. No language model writes or rewrites anything at runtime. If a condition is not covered by hand-written prose, the page stays quiet about it. We\'d rather say less than say something false.' },
+  sourcesSent: { label: 'What this page sent', note: 'Two events: that you arrived, that you finished. No cookie, no identifier, no IP retained. Our server discards the body of each request and returns nothing. The transport-level record that the request happened exists in our hosting provider\'s logs for as long as their default retention runs (typically a few days). We did not configure that. Every site you visit has the same record. Most also send hundreds of additional beacons to advertisers, fingerprinters, session-replay tools, and tag managers. We send two, to ourselves, and tell you about them.' },
+  sourcesStored: { label: 'What this page stored on your device', note: 'Nothing. No cookies. No localStorage. No sessionStorage. No IndexedDB. No service worker cache. The data you saw was computed in your browser and never left your device, except for the IP geolocation lookup and the two anonymous events above. When you close this tab, this page forgets you exist. We are the only page you will visit today that can say this honestly.' },
+  sourcesCompanion: { label: 'Companion volumes', note: 'Vol. I is what the world did while you were here. Vol. II is the sky you missed. Vol. III is what was already at your feet. This was Vol. IV. The series zooms in with each volume: global, to city, to coordinates, to you. You may have noticed the path it was walking.' },
+  sourcesFoot: 'Open the source. Read it. <code>Cmd+U</code> on Mac, <code>Ctrl+U</code> on Windows or Linux. Or right-click anywhere and choose &ldquo;View page source.&rdquo; Everything described above is in the page you are reading. We have nothing to hide. Most pages cannot say that.',
+  sourcesFootFuture: 'Future editions will appear on <a href="https://x.com/sinceyouarrived" target="_blank" rel="noopener">X</a> and <a href="https://bsky.app/profile/sinceyouarrived.world" target="_blank" rel="noopener">Bluesky</a>.',
+  sourcesClose: 'Close',
+};
+
+/* Choose locale */
+if (LOCALE === 'zh') {
+  Object.assign(TX, ZH);
+} else {
+  /* English — populate TX with the EN object so t() lookups work */
+  TX.tallyLabel = EN.tallyLabel;
+  TX.tallyLine = EN.tallyLine;
+  TX.thesis1 = EN.thesis1;
+  TX.thesis2 = EN.thesis2;
+  TX.thesis3 = EN.thesis3;
+  TX.behavioralLabel = EN.behavioralLabel;
+  TX.behavioralDatum = EN.behavioralDatum;
+  TX.finalTag = EN.finalTag;
+  TX.viewSource = EN.viewSource;
+  TX.tellSomeone = EN.tellSomeone;
+  TX.sourcesAndConfessions = EN.sourcesAndConfessions;
+  TX.shareCopyLink = EN.shareCopyLink;
+  TX.shareCopied = EN.shareCopied;
+  TX.shareClose = EN.shareClose;
+  TX.shareHeading = EN.shareHeading;
+  TX.sharePreviewLabel = EN.sharePreviewLabel;
+  TX.sharePreviewHeadline = EN.sharePreviewHeadline;
+  TX.shareX = EN.shareX;
+  TX.shareBluesky = EN.shareBluesky;
+  TX.shareLinkedIn = EN.shareLinkedIn;
+  TX.shareFacebook = EN.shareFacebook;
+  TX.shareReddit = EN.shareReddit;
+  TX.shareWhatsApp = EN.shareWhatsApp;
+  TX.sourcesKicker = EN.sourcesKicker;
+  TX.sourcesTitle = EN.sourcesTitle;
+  TX.sourcesSub = EN.sourcesSub;
+  TX.sourcesLocation = EN.sourcesLocation;
+  TX.sourcesBrowserAPI = EN.sourcesBrowserAPI;
+  TX.sourcesFontFP = EN.sourcesFontFP;
+  TX.sourcesCanvasFP = EN.sourcesCanvasFP;
+  TX.sourcesClipboard = EN.sourcesClipboard;
+  TX.sourcesBattery = EN.sourcesBattery;
+  TX.sourcesNotRun = EN.sourcesNotRun;
+  TX.sourcesBarcode = EN.sourcesBarcode;
+  TX.sourcesProse = EN.sourcesProse;
+  TX.sourcesSent = EN.sourcesSent;
+  TX.sourcesStored = EN.sourcesStored;
+  TX.sourcesCompanion = EN.sourcesCompanion;
+  TX.sourcesFoot = EN.sourcesFoot;
+  TX.sourcesFootFuture = EN.sourcesFootFuture;
+  TX.sourcesClose = EN.sourcesClose;
+}
+
+/* ============================================================
+   BEACON — two anonymous pings to our own server
+   No cookie, no identifier, no body retained on the server.
+   ============================================================ */
+
+function beacon(name) {
+  try {
+    const body = JSON.stringify({ event: name, ts: Date.now() });
+    if (navigator.sendBeacon) {
+      const blob = new Blob([body], { type: 'application/json' });
+      navigator.sendBeacon('/api/beacon', blob);
+    } else {
+      fetch('/api/beacon', {
+        method: 'POST',
+        body,
+        headers: { 'Content-Type': 'application/json' },
+        keepalive: true
+      }).catch(() => {});
+    }
+  } catch (e) { /* fail silent — the volume should not interrupt itself */ }
+}
+
+beacon('TakenLoaded');
+
+/* ============================================================
+   BEHAVIORAL TRACKING — visible only on screen, never sent
+   ============================================================ */
+
+document.addEventListener('mousemove',  () => { mouseMovements++; totalBehavioralEvents++; }, { passive: true });
+document.addEventListener('touchmove',  () => { mouseMovements++; totalBehavioralEvents++; }, { passive: true });
+document.addEventListener('click',      () => { clicks++; totalBehavioralEvents++; });
+document.addEventListener('touchstart', () => { clicks++; totalBehavioralEvents++; }, { passive: true });
+
+let scrollTimer = null;
+window.addEventListener('scroll', () => {
+  totalBehavioralEvents++;
+  /* The behavioral-reveal section gets injected into the DOM after the
+     visitor finishes reading, which can make scrollHeight a moving target
+     and let scrollY momentarily exceed denom. Clamp to [0, 100] so we
+     never tell a visitor they "scrolled 103% of the way down." */
+  const denom = Math.max(1, document.body.scrollHeight - window.innerHeight);
+  const pct = Math.min(100, Math.max(0, Math.round((window.scrollY / denom) * 100)));
+  if (pct > scrollMax) scrollMax = pct;
+  if (pauseStart) {
+    const dur = (performance.now() - pauseStart) / 1000;
+    if (dur > longestPause) longestPause = dur;
+    pauseStart = null;
+  }
+  clearTimeout(scrollTimer);
+  scrollTimer = setTimeout(() => { pauseStart = performance.now(); scrollPauses++; }, 1500);
+}, { passive: true });
+
+/* Tab visibility — fires the "you left" tab notice + dynamic observation */
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    tabSwitches++;
+    tabLeftAt = performance.now();
+  } else if (tabLeftAt) {
+    const gone = ((performance.now() - tabLeftAt) / 1000).toFixed(1);
+    const notice = document.getElementById('tabNotice');
+    notice.textContent = LOCALE === 'zh' ? TX.tabNotice(gone) : 'You left for ' + gone + ' seconds. We noticed.';
+    notice.classList.add('visible');
+    setTimeout(() => notice.classList.remove('visible'), 4000);
+    tabLeftAt = null;
+
+    const obs = document.getElementById('observations');
+    if (obs.children.length > 0 && !document.getElementById('tab-obs')) {
+      const div = document.createElement('div');
+      div.className = 'obs';
+      div.id = 'tab-obs';
+      if (LOCALE === 'zh') {
+        div.innerHTML =
+          '<div class="divider visible" style="opacity:1;margin-bottom:3rem"></div>' +
+          '<div class="obs-label">你离开了</div>' +
+          '<div class="obs-datum">离开了 ' + gone + ' 秒</div>' +
+          '<div class="obs-prose">你刚刚切换到了另一个标签页——或者另一个应用——并在 ' + gone +
+          ' 秒后回来了。Visibility API 精确地记录了你的离开时刻和返回时刻。你访问的每个网站都能读取这个信号。大多数广告平台利用它来判断你是否真的看到了他们的广告，还是仅仅让广告在后台标签页中打开。你的注意力是一种商品。我们刚刚目送了它离开房间。</div>';
+      } else {
+        div.innerHTML =
+          '<div class="divider visible" style="opacity:1;margin-bottom:3rem"></div>' +
+          '<div class="obs-label">You left</div>' +
+          '<div class="obs-datum">' + gone + ' seconds away</div>' +
+          '<div class="obs-prose">You just switched to another tab — or another app — and came back ' + gone +
+          ' seconds later. The Visibility API named the exact moment you left and the exact moment you returned. Every website you open can read this signal. Most advertising platforms use it to calculate whether you are actually seeing their ads, or just leaving them open in a background tab. Your attention is a commodity. We just watched it leave the room.</div>';
+      }
+      const closingEl = document.getElementById('closing');
+      closingEl.parentNode.insertBefore(div, closingEl);
+      requestAnimationFrame(() => div.classList.add('visible'));
+      dataPoints += 2;
+    }
+  }
+});
+
+/* ============================================================
+   COLLECT — every observation comes from a standard browser API
+   ============================================================ */
+
+/* ============================================================
+   FINGERPRINT BARCODE — sixteen hairlines, deterministically
+   hashed from stable browser-provided data points. Same visitor,
+   same barcode. Computed in the browser, never sent.
+   ============================================================ */
+
+function deterministicBars(d) {
+  const parts = [
+    (d.geo && d.geo.city) || '',
+    (d.geo && d.geo.country) || '',
+    d.tz || '',
+    d.browser || '', d.os || '',
+    d.screenW + 'x' + d.screenH,
+    String(d.pixelRatio), String(d.colorDepth),
+    d.lang || '',
+    d.gpu || '',
+    (d.installed || []).slice().sort().join(','),
+    d.cookiesEnabled ? '1' : '0',
+    d.darkMode ? '1' : '0',
+    d.doNotTrack ? '1' : '0'
+  ].join('|');
+
+  const N = 16;
+  const bars = [];
+  for (let i = 0; i < N; i++) {
+    /* Sixteen independent FNV-1a-style hashes seeded by index.
+       Each visitor's data produces sixteen stable [0,1] heights. */
+    let h = 2166136261 ^ Math.imul(i + 1, 2654435761);
+    for (let j = 0; j < parts.length; j++) {
+      h ^= parts.charCodeAt(j);
+      h = Math.imul(h, 16777619);
+    }
+    h = (h ^ (h >>> 13)) >>> 0;
+    h = (Math.imul(h, 1274126177) ^ (h >>> 16)) >>> 0;
+    bars.push((h % 1000) / 999);
+  }
+  return bars;
+}
+
+function renderBarcodeSvg(bars) {
+  const W = 156, H = 32, barW = 2;
+  const N = bars.length;
+  const gapW = (W - N * barW) / (N - 1);
+
+  let rects = '';
+  for (let i = 0; i < N; i++) {
+    const minH = 6, maxH = H;
+    const h = minH + bars[i] * (maxH - minH);
+    const y = (H - h) / 2;
+    const x = i * (barW + gapW);
+    rects += '<rect x="' + x.toFixed(2) + '" y="' + y.toFixed(2) +
+             '" width="' + barW + '" height="' + h.toFixed(2) +
+             '" fill="currentColor"/>';
+  }
+  return '<svg viewBox="0 0 ' + W + ' ' + H + '" width="' + W + '" height="' + H +
+         '" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">' +
+         rects + '</svg>';
+}
+
+/* ============================================================
+   COUNT-UP — the iconic "29" ticks from 0 with ease-out cubic.
+   Honors prefers-reduced-motion.
+   ============================================================ */
+
+/* ============================================================
+   CAPTURE-ON-SIGHT — for the behavioral and final blocks. The
+   blocks fade in on a timer (climax choreography), but the
+   metrics they report are captured the moment the visitor
+   actually reaches them in the viewport. Frozen on first sight.
+   Falls back to a generous timeout if IntersectionObserver is
+   unavailable or if the visitor never scrolls to the block.
+   ============================================================ */
+
+function captureWhenSeen(el, populator, fallbackMs) {
+  let captured = false;
+  const trigger = () => {
+    if (captured) return;
+    captured = true;
+    try { populator(); } catch (e) {}
+  };
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          trigger();
+          observer.disconnect();
+        }
+      });
+    }, { threshold: 0.4 });
+    observer.observe(el);
+  }
+  setTimeout(trigger, fallbackMs || 60000);
+}
+
+function animateCountUp(el, target, duration) {
+  if (prefersReducedMotion || target <= 0) {
+    el.textContent = String(target);
+    return;
+  }
+  const start = performance.now();
+  function frame(now) {
+    const t = Math.min((now - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - t, 3);
+    el.textContent = String(Math.round(target * eased));
+    if (t < 1) requestAnimationFrame(frame);
+    else el.textContent = String(target);
+  }
+  requestAnimationFrame(frame);
+}
+
+function maskIp(ip) {
+  if (!ip) return ip;
+  const v4 = String(ip).match(/^(\d+)\.\d+\.\d+\.(\d+)$/);
+  if (v4) return v4[1] + '.xxx.xxx.' + v4[2];
+  if (String(ip).indexOf(':') !== -1) {
+    const hex = String(ip).split(':')[0];
+    return hex + ':xxxx:xxxx:xxxx::xxxx';
+  }
+  return ip;
+}
+
+async function collect() {
+  const nav = navigator;
+  const scr = screen;
+  const w = window;
+
+  const hour = ARRIVAL.getHours();
+  const minute = ARRIVAL.getMinutes();
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'an unnamed timezone';
+  const tzPretty = tz.replace(/_/g, ' ').replace(/\//g, ', ');
+
+  let timeOfDay = 'in the small hours';
+  if      (hour >= 5  && hour < 8)  timeOfDay = 'early in the morning';
+  else if (hour >= 8  && hour < 12) timeOfDay = 'in the morning';
+  else if (hour >= 12 && hour < 14) timeOfDay = 'around midday';
+  else if (hour >= 14 && hour < 17) timeOfDay = 'in the afternoon';
+  else if (hour >= 17 && hour < 20) timeOfDay = 'in the evening';
+  else if (hour >= 20 && hour < 23) timeOfDay = 'late in the evening';
+  else if (hour >= 23 || hour < 2)  timeOfDay = 'near midnight';
+
+  const ua = nav.userAgent.toLowerCase();
+
+  /* iOS detection comes first — iPhone/iPod/iPad UAs include "Mac OS X" as a
+     substring, and modern iPads in desktop-mode masquerade as Macintosh
+     entirely (Apple changed this in iPadOS 13). The reliable signal is
+     either an iOS-family token in the UA, or a Macintosh UA paired with
+     more than one touch point — which only iPads produce. */
+  const isIOSDevice  = ua.includes('iphone') || ua.includes('ipad') || ua.includes('ipod');
+  const isIPadOnMac  = ua.includes('macintosh') && (nav.maxTouchPoints || 0) > 1;
+  const isIOS        = isIOSDevice || isIPadOnMac;
+
+  let os = 'an operating system';
+  if      (isIOS)                                             os = 'iOS';
+  else if (ua.includes('android'))                            os = 'Android';
+  else if (ua.includes('mac os') || ua.includes('macintosh')) os = 'macOS';
+  else if (ua.includes('windows'))                            os = 'Windows';
+  else if (ua.includes('cros'))                               os = 'ChromeOS';
+  else if (ua.includes('linux'))                              os = 'Linux';
+
+  /* Browser detection — iOS browsers are wrappers around WebKit, and they
+     carry distinctive tokens (CriOS, FxiOS, EdgiOS, OPiOS, DuckDuckGo). On
+     iOS, the actual rendering engine is always Safari/WebKit — but the
+     visitor experiences the wrapper, so we name the wrapper. */
+  let browser = 'a browser';
+  if      (ua.includes('fxios')     || ua.includes('firefox'))   browser = 'Firefox';
+  else if (ua.includes('edgios')    || ua.includes('edg/'))      browser = 'Edge';
+  else if (ua.includes('crios'))                                 browser = 'Chrome';
+  else if (ua.includes('opios')     || ua.includes('opera') || ua.includes('opr')) browser = 'Opera';
+  else if (ua.includes('duckduckgo'))                            browser = 'DuckDuckGo';
+  else if (ua.includes('brave'))                                 browser = 'Brave';
+  else if (ua.includes('chrome')    && !ua.includes('edg'))      browser = 'Chrome';
+  else if (ua.includes('safari')    && !ua.includes('chrome'))   browser = 'Safari';
+  const touch = nav.maxTouchPoints || 0;
+  const isMobile = touch > 0 && scr.width < 768;
+  const isTablet = touch > 0 && scr.width >= 768 && scr.width < 1200;
+  let deviceType = 'a computer';
+  if (isMobile) deviceType = 'a phone';
+  else if (isTablet) deviceType = 'a tablet';
+
+  const pixelRatio = w.devicePixelRatio || 1;
+  const colorDepth = scr.colorDepth;
+
+  const lang = nav.language || 'unknown';
+  let langPretty = lang;
+  let otherLangs = [];
+  try {
+    const langNames = new Intl.DisplayNames(['en'], { type: 'language' });
+    langPretty = langNames.of(lang.split('-')[0]) || lang;
+    const languages = nav.languages ? Array.from(nav.languages) : [lang];
+    otherLangs = languages.slice(1)
+      .map(l => { try { return langNames.of(l.split('-')[0]) || l; } catch (e) { return l; } })
+      .filter((v, i, a) => a.indexOf(v) === i && v !== langPretty);
+  } catch (e) {}
+
+  const doNotTrack    = nav.doNotTrack === '1' || nav.doNotTrack === 'yes';
+  const cookiesEnabled = nav.cookieEnabled;
+  const darkMode      = w.matchMedia('(prefers-color-scheme:dark)').matches;
+  const reducedMotion = w.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  const referrer      = document.referrer || null;
+
+  /* GPU — WebGL renderer string */
+  let gpu = null;
+  try {
+    const c = document.createElement('canvas');
+    const gl = c.getContext('webgl') || c.getContext('experimental-webgl');
+    if (gl) {
+      const dbg = gl.getExtension('WEBGL_debug_renderer_info');
+      if (dbg) gpu = gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL);
+    }
+  } catch (e) {}
+
+  /* Fonts — measured via width comparison; the device names what it carries */
+  const testFonts = ['Helvetica Neue','Georgia','Courier New','Comic Sans MS','Impact','Trebuchet MS','Palatino','Garamond','Futura','Gill Sans','Verdana','Tahoma','Lucida Console','Cambria','Consolas','Menlo','Monaco'];
+  const installed = [];
+  const probe = document.createElement('span');
+  probe.style.cssText = 'position:absolute;left:-9999px;font-size:72px;visibility:hidden';
+  probe.textContent = 'mmmmmmmmlli';
+  document.body.appendChild(probe);
+  probe.style.fontFamily = 'monospace';
+  const baseW = probe.offsetWidth;
+  testFonts.forEach(f => {
+    probe.style.fontFamily = '"' + f + '",monospace';
+    if (probe.offsetWidth !== baseW) installed.push(f);
+  });
+  document.body.removeChild(probe);
+
+  /* Battery — Chrome/Edge expose; Safari/Firefox kept it back.
+     A desktop-with-no-battery and a fully-charged plugged-in laptop
+     resolve to *identical* signatures (charging:true, level:1,
+     chargingTime:0, dischargingTime:Infinity). Rather than reject both
+     and break real laptops, accept the reading and let the prose name
+     the ambiguity. Only reject malformed (NaN level) responses. */
+  let battery = null;
+  try {
+    if ('getBattery' in nav) {
+      const b = await nav.getBattery();
+      const levelOk = Number.isFinite(b.level) && b.level >= 0 && b.level <= 1;
+      if (levelOk) {
+        battery = { level: Math.round(b.level * 100), charging: b.charging };
+        /* Flag the ambiguous case so the prose can name it. */
+        battery.indistinguishable = b.charging === true && b.level === 1;
+      }
+    }
+  } catch (e) {}
+
+  /* Storage — only if the browser exposes it */
+  let storage = null;
+  try {
+    if (nav.storage && nav.storage.estimate) {
+      const s = await nav.storage.estimate();
+      if (s.quota > 0) storage = { used: Math.round(s.usage / 1024 / 1024), quota: Math.round(s.quota / 1024 / 1024) };
+    }
+  } catch (e) {}
+
+  /* IP geolocation — proxied through our /api/geo to keep the visitor over HTTPS
+     and to keep ip-api.com out of the page's CSP. Server retains nothing. */
+  let geo = null;
+  try {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 3000);
+    const r = await fetch('/api/geo', { signal: ctrl.signal });
+    clearTimeout(timer);
+    if (r.ok) {
+      const j = await r.json();
+      if (j && j.status === 'success') geo = j;
+    }
+  } catch (e) {}
+
+  /* Device orientation — desktop omits; iOS keeps it back; older Android exposes */
+  let orientation = null;
+  let orientationBlocked = false;
+  if (isMobile) {
+    if (typeof DeviceOrientationEvent !== 'undefined' &&
+        typeof DeviceOrientationEvent.requestPermission === 'function') {
+      orientationBlocked = true;
+    } else if ('DeviceOrientationEvent' in w) {
+      orientation = await new Promise(res => {
+        const handler = e => {
+          if (e.beta !== null) {
+            w.removeEventListener('deviceorientation', handler);
+            res({ beta: Math.round(e.beta), gamma: Math.round(e.gamma) });
+          }
+        };
+        w.addEventListener('deviceorientation', handler);
+        setTimeout(() => { w.removeEventListener('deviceorientation', handler); res(null); }, 2000);
+      });
+    }
+  }
+
+  /* Coarse screen orientation — works without permission, reported regardless */
+  let coarseOrientation = null;
+  try {
+    if (screen.orientation && screen.orientation.type) {
+      coarseOrientation = screen.orientation.type;
+    }
+  } catch (e) {}
+
+  return {
+    hour, minute, tz, tzPretty, timeOfDay,
+    browser, os, isIOS, deviceType, isMobile, touch,
+    screenW: scr.width, screenH: scr.height,
+    innerW: w.innerWidth, innerH: w.innerHeight,
+    pixelRatio, colorDepth,
+    lang, langPretty, otherLangs,
+    doNotTrack, cookiesEnabled, darkMode, reducedMotion,
+    referrer, gpu, installed,
+    battery, storage, geo,
+    orientation, orientationBlocked, coarseOrientation
+  };
+}
+
+/* ============================================================
+   BUILD — voice: data was given freely, never requested
+   ============================================================ */
+
+function build(d) {
+  const obs = [];
+  let dp = 0;
+
+  /* 1 — WHERE YOU ARE */
+  if (d.geo) {
+    obs.push(TX.whereYouAre(d));
+    dp += 5;
+  }
+
+  /* 2 — WHEN YOU ARRIVED */
+  obs.push(TX.whenYouArrived(d));
+  dp += 2;
+
+  /* 3 — WHAT YOU BROUGHT WITH YOU */
+  obs.push(TX.whatYouBrought(d));
+  dp += 7;
+
+  /* 4 — WHAT RENDERS YOUR WORLD (GPU) */
+  let gpuShort = null;
+  if (d.gpu) {
+    let raw = String(d.gpu).replace(/^ANGLE \(/, '').replace(/\)$/, '');
+    const parts = raw.split(',');
+    if (parts.length >= 2) {
+      const r = parts[1].match(/Renderer:\s*(.+)/);
+      gpuShort = (r ? r[1] : parts[1]).trim();
+    } else {
+      gpuShort = parts[0].trim();
+    }
+    const lower = gpuShort.toLowerCase();
+    if (!gpuShort ||
+        gpuShort.length < 4 ||
+        lower === 'or similar' ||
+        lower.startsWith('mozilla') ||
+        lower.startsWith('webkit') ||
+        lower === 'apple' ||
+        lower === 'google inc.' ||
+        lower.includes('generic')) {
+      gpuShort = null;
+    }
+  }
+  if (gpuShort) {
+    obs.push(TX.gpu(gpuShort));
+    dp += 1;
+  } else {
+    obs.push(TX.gpuMasked());
+    dp += 1;
+  }
+
+  /* 5 — HOW MUCH IS LEFT (battery) */
+  if (d.battery) {
+    obs.push(TX.battery(d));
+    dp += 2;
+  } else {
+    obs.push(TX.batteryHidden());
+    dp += 1;
+  }
+
+  /* 6 — WHAT YOU SPEAK */
+  obs.push(TX.whatYouSpeak(d));
+  dp += 1 + d.otherLangs.length;
+
+  /* 7 — HOW YOU ARE HOLDING IT (mobile) */
+  if (d.orientation) {
+    const res = TX.orientation(d.orientation.beta, undefined, false, d.coarseOrientation);
+    if (res) obs.push(res);
+    dp += 2;
+  } else if (d.orientationBlocked) {
+    const res = TX.orientation(undefined, undefined, true, d.coarseOrientation);
+    if (res) obs.push(res);
+    dp += 1;
+  }
+
+  /* 8 — WHAT YOU CARRY (fonts) */
+  if (d.installed.length > 0) {
+    obs.push(TX.fonts(d));
+    dp += d.installed.length;
+  }
+
+  /* 9 — WHAT YOU ALLOW (cookies + storage + preferences merged) */
+  obs.push(TX.whatYouAllow(d));
+  dp += (d.cookiesEnabled ? 1 : 0) + 1 + (d.reducedMotion ? 1 : 0) + (d.doNotTrack ? 1 : 0) + (d.storage ? 1 : 0);
+
+  /* 10 — WHERE YOU WERE BEFORE (referrer, conditional) */
+  if (d.referrer) {
+    let ref = d.referrer;
+    try { ref = new URL(d.referrer).hostname; } catch (e) {}
+    obs.push(TX.referrer(ref));
+    dp += 1;
+  }
+
+  dataPoints = dp;
+  return obs;
+}
+
+/* ============================================================
+   RENDER — choreography with continuous-build climax
+   ============================================================ */
+
+async function render() {
+  const d = await collect();
+  const obs = build(d);
+
+  const container = document.getElementById('observations');
+  const closingEl = document.getElementById('closing');
+  const footerEl  = document.getElementById('footer');
+  const scanEl    = document.getElementById('scanning');
+  const counterEl = document.getElementById('liveCounter');
+  const dossierEl = document.getElementById('dossierRule');
+
+  const titleEl = document.getElementById('title');
+  if (prefersReducedMotion) titleEl.classList.add('no-flicker');
+  else titleEl.classList.add('flicker');
+
+  let html = '';
+  obs.forEach((o, i) => {
+    if (i > 0) html += '<div class="divider" data-i="' + i + '"></div>';
+    html += '<div class="obs" data-i="' + i + '">' +
+            '<div class="obs-label">' + o.label + '</div>' +
+            '<div class="obs-datum">' + o.datum + '</div>' +
+            '<div class="obs-prose">' + o.prose + '</div>' +
+            '</div>';
+  });
+  container.innerHTML = html;
+
+  const BASE = 5500;
+  const GAP  = 2200;
+
+  setTimeout(() => scanEl.classList.add('done'), BASE - 400);
+
+  const obsEls = container.querySelectorAll('.obs');
+  obsEls.forEach((el, i) => {
+    setTimeout(() => {
+      el.classList.add('visible');
+      const landed = i + 1;
+      const pct = Math.min(landed / obsEls.length, 1);
+      dossierEl.style.height = Math.round(pct * 100) + 'vh';
+
+      /* Drop a tick mark at the obs's document position — a manuscript marker
+         in the left margin. The fixed rule fills as a viewport meter; the
+         ticks are the milestones. */
+      const tick = document.createElement('div');
+      tick.className = 'dossier-tick';
+      const rect = el.getBoundingClientRect();
+      tick.style.top = (rect.top + window.scrollY + 14) + 'px';
+      document.body.appendChild(tick);
+      requestAnimationFrame(() => tick.classList.add('visible'));
+    }, BASE + i * GAP);
+  });
+  container.querySelectorAll('.divider').forEach((el, i) => {
+    setTimeout(() => el.classList.add('visible'), BASE + (i + 1) * GAP - 700);
+  });
+
+  /* Live counter — appears partway through */
+  setTimeout(() => { counterVisible = true; counterEl.classList.add('visible'); }, BASE + 3 * GAP);
+
+  /* ── CLIMAX — continuous build, no long gaps ───────────── */
+
+  const climaxStart = BASE + obs.length * GAP + 1500;
+
+  /* Iconic tally — count-up + per-visitor barcode */
+  setTimeout(() => {
+    const bars = deterministicBars(d);
+    const barcodeSvg = renderBarcodeSvg(bars);
+    const barcodeLabel = LOCALE === 'zh' ? '你的唯一指纹条形码' : 'Your unique fingerprint barcode';
+
+    const tally = document.createElement('div');
+    tally.className = 'closing-tally';
+    tally.innerHTML =
+      '<div class="closing-tally-number" id="tallyNumber">0</div>' +
+      '<div class="closing-tally-barcode" role="img" aria-label="' + barcodeLabel + '">' + barcodeSvg + '</div>' +
+      '<div class="closing-tally-label">' + t('tallyLabel') + '</div>' +
+      '<div class="closing-tally-line">' + t('tallyLine') + '</div>';
+    closingEl.appendChild(tally);
+    requestAnimationFrame(() => {
+      tally.classList.add('visible');
+      /* Begin the count-up after the fade-in starts taking hold */
+      setTimeout(() => animateCountUp(document.getElementById('tallyNumber'), dataPoints, 1400), 400);
+    });
+  }, climaxStart);
+
+  /* Thesis */
+  setTimeout(() => {
+    const thesis = document.createElement('div');
+    thesis.className = 'closing-thesis';
+    thesis.innerHTML =
+      t('thesis1') + '<br>' +
+      t('thesis2') + '<br>' +
+      t('thesis3');
+    closingEl.appendChild(thesis);
+    requestAnimationFrame(() => thesis.classList.add('visible'));
+  }, climaxStart + 1800);
+
+  /* Behavioral reveal — folded into the climax. Body text is captured
+     the moment the block enters the viewport, so the numbers reflect
+     the visitor's actual reading journey, not the render time. */
+  setTimeout(() => {
+    const beh = document.createElement('div');
+    beh.className = 'closing-behavioral';
+    beh.innerHTML =
+      '<span class="obs-label">' + t('behavioralLabel') + '</span>' +
+      '<span class="obs-datum">' + t('behavioralDatum') + '</span>' +
+      '<span class="closing-behavioral-body" id="behavioralBody"></span>';
+    closingEl.appendChild(beh);
+    requestAnimationFrame(() => beh.classList.add('visible'));
+
+    captureWhenSeen(beh, () => {
+      const elapsed = ((performance.now() - T0) / 1000).toFixed(0);
+      const isTouch = (navigator.maxTouchPoints || 0) > 0;
+      const moveWord = isTouch ? 'movements' : 'cursor movements';
+      const pauseNote = longestPause > 3
+        ? (LOCALE === 'zh' ? ' 你在一处停留了 ' + longestPause.toFixed(0) + ' 秒——比其他地方都长。' : ' You paused once for ' + longestPause.toFixed(0) + ' seconds — longer than anywhere else.')
+        : '';
+      const tabNote = tabSwitches > 0
+        ? (LOCALE === 'zh' ? '你离开了 ' + tabSwitches + ' 次，每次都回来了。我们注意到了每一次离开。' : 'You left ' + tabSwitches + ' time' + (tabSwitches > 1 ? 's' : '') + ' and came back each time. We noticed every departure. ')
+        : (LOCALE === 'zh' ? '你从未离开这个标签页。我们本来也会注意到的，如果你离开过的话。' : 'You never left this tab. We would have noticed if you had. ');
+      const cursorNote = mouseMovements > 20
+        ? (LOCALE === 'zh' ? '你的' + (isTouch ? '手指' : '光标') + '移动了 ' + mouseMovements.toLocaleString() + ' 次。' : 'Your ' + (isTouch ? 'finger' : 'cursor') + ' moved ' + mouseMovements.toLocaleString() + ' times. ')
+        : '';
+      const clickNote = clicks > 1
+        ? (LOCALE === 'zh' ? '你点击了 ' + clicks + ' 次。' : 'You ' + (isTouch ? 'tapped' : 'clicked') + ' ' + clicks + ' times. ')
+        : '';
+
+      document.getElementById('behavioralBody').innerHTML =
+        (LOCALE === 'zh' ? '你在这个页面上停留了 ' + elapsed + ' 秒。你滚动了 ' + scrollMax + '% 的页面长度。' : 'You have been on this page for ' + elapsed + ' seconds. You scrolled ' + scrollMax + '% of the way down. ') +
+        tabNote + cursorNote + clickNote + pauseNote +
+        (LOCALE === 'zh' ? '我们没有在数。我们一直在数。' : 'We were not counting. We were always counting.');
+    });
+  }, climaxStart + 3800);
+
+  /* Final — same capture-on-sight pattern */
+  setTimeout(() => {
+    const fin = document.createElement('div');
+    fin.className = 'closing-final';
+    fin.innerHTML =
+      (LOCALE === 'zh' ? '它以足够的精确度识别了你的设备，将它与互联网上绝大多数设备区分开来。' : 'It identified your device with enough specificity to distinguish it from most others on the internet.') + '<br><br>' +
+      '<span class="closing-final-time" id="finalTime"></span><br><br>' +
+      '<span class="closing-final-tag">' + t('finalTag') + '</span>';
+    closingEl.appendChild(fin);
+    requestAnimationFrame(() => fin.classList.add('visible'));
+
+    captureWhenSeen(fin, () => {
+      const elapsed = ((performance.now() - T0) / 1000).toFixed(0);
+      document.getElementById('finalTime').textContent = TX.finalTime ? TX.finalTime(elapsed) : 'It did this in ' + elapsed + ' seconds.';
+      beacon('TakenFinalLine');
+    });
+  }, climaxStart + 5800);
+
+  /* View source — the closing of the loop */
+  setTimeout(() => {
+    const src = document.createElement('div');
+    src.className = 'closing-source-line';
+    src.innerHTML = t('viewSource');
+    closingEl.appendChild(src);
+    requestAnimationFrame(() => src.classList.add('visible'));
+
+    const shareBtn = document.createElement('button');
+    shareBtn.className = 'share-trigger';
+    shareBtn.type = 'button';
+    shareBtn.id = 'shareBtn';
+    shareBtn.textContent = t('tellSomeone');
+    shareBtn.addEventListener('click', openShare);
+    closingEl.appendChild(shareBtn);
+
+    const sourcesBtn = document.createElement('button');
+    sourcesBtn.className = 'sources-trigger';
+    sourcesBtn.type = 'button';
+    sourcesBtn.id = 'sourcesBtn';
+    sourcesBtn.textContent = t('sourcesAndConfessions');
+    sourcesBtn.addEventListener('click', openSources);
+    closingEl.appendChild(sourcesBtn);
+  }, climaxStart + 7600);
+
+  /* Footer */
+  setTimeout(() => footerEl.classList.add('visible'), climaxStart + 9400);
+}
+
+/* ============================================================
+   LIVE COUNTER
+   ============================================================ */
+
+function tick() {
+  if (!counterVisible) { requestAnimationFrame(tick); return; }
+  const el = document.getElementById('liveCounter');
+  const sec = ((performance.now() - T0) / 1000).toFixed(0);
+  if (LOCALE === 'zh') {
+    el.innerHTML = TX.liveCounter(sec, scrollMax, tabSwitches, '', mouseMovements.toLocaleString(), clicks);
+  } else {
+    el.innerHTML =
+      '<span>' + sec + 's</span> on page · ' +
+      '<span>' + scrollMax + '%</span> scrolled · ' +
+      '<span>' + tabSwitches + '</span> tab switch' + (tabSwitches !== 1 ? 'es' : '') + ' · ' +
+      '<span>' + mouseMovements.toLocaleString() + '</span> movements · ' +
+      '<span>' + clicks + '</span> clicks';
+  }
+  requestAnimationFrame(tick);
+}
+requestAnimationFrame(tick);
+
+/* ============================================================
+   SHARE & SOURCES MODALS
+   ============================================================ */
+
+const shareModal      = document.getElementById('shareModal');
+const sourcesModal    = document.getElementById('sourcesModal');
+const sourcesCloseBtn = document.getElementById('sourcesCloseBtn');
+
+function openShare() {
+  document.getElementById('share-preview-tally').textContent =
+    dataPoints + (LOCALE === 'zh' ? ' 条数据 · 0 个问题' : ' data points · 0 questions asked');
+  const copyBtn = document.getElementById('copy-link-btn');
+  if (copyBtn) copyBtn.textContent = t('shareCopyLink');
+  shareModal.classList.add('show');
+}
+
+function openSources() {
+  sourcesModal.classList.add('show');
+}
+
+sourcesCloseBtn.addEventListener('click', () => sourcesModal.classList.remove('show'));
+sourcesModal.addEventListener('click', e => { if (e.target === sourcesModal) sourcesModal.classList.remove('show'); });
+
+document.getElementById('shareCloseBtn').addEventListener('click', () => shareModal.classList.remove('show'));
+shareModal.addEventListener('click', e => { if (e.target === shareModal) shareModal.classList.remove('show'); });
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    sourcesModal.classList.remove('show');
+    shareModal.classList.remove('show');
+  }
+});
+
+function openShareWindow(url) {
+  window.open(url, '_blank', 'noopener,noreferrer,width=640,height=600');
+}
+
+function doShare(platform) {
+  const text = LOCALE === 'zh'
+    ? '一个网页刚刚在未经请求的情况下告诉了我它了解到的关于我的一切。它知道我的城市、我的设备、我的 GPU，以及我在滚动前犹豫了多久。'
+    : 'A web page just told me everything it learned about me without asking. It knew my city, my device, my GPU, and how long I hesitated before scrolling.';
+
+  if (platform === 'x') {
+    const t = encodeURIComponent(text + '\n\n');
+    const u = encodeURIComponent(SHARE_URL);
+    openShareWindow('https://twitter.com/intent/tweet?text=' + t + '&url=' + u);
+  } else if (platform === 'bluesky') {
+    const t = encodeURIComponent(text + '\n\n' + SHARE_URL);
+    openShareWindow('https://bsky.app/intent/compose?text=' + t);
+  } else if (platform === 'linkedin') {
+    openShareWindow('https://www.linkedin.com/sharing/share-offsite/?url=' + encodeURIComponent(SHARE_URL));
+  } else if (platform === 'facebook') {
+    openShareWindow('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(SHARE_URL));
+  } else if (platform === 'reddit') {
+    const title = encodeURIComponent('A web page told me everything it learned about me — without asking');
+    openShareWindow('https://reddit.com/submit?url=' + encodeURIComponent(SHARE_URL) + '&title=' + title);
+  } else if (platform === 'whatsapp') {
+    const t = encodeURIComponent(text + '\n\n' + SHARE_URL);
+    openShareWindow('https://wa.me/?text=' + t);
+  } else if (platform === 'copy') {
+    const copyBtn = document.getElementById('copy-link-btn');
+    const onDone = () => {
+      if (copyBtn) copyBtn.textContent = t('shareCopied');
+      setTimeout(() => { if (copyBtn) copyBtn.textContent = t('shareCopyLink'); }, 2500);
+    };
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(SHARE_URL).then(onDone, onDone);
+    } else {
+      const ta = document.createElement('textarea');
+      ta.value = SHARE_URL;
+      ta.style.cssText = 'position:fixed;opacity:0;';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); } catch (_) {}
+      document.body.removeChild(ta);
+      onDone();
+    }
+  }
+}
+
+/* ============================================================
+   DOM LOCALIZATION — replaces static HTML text for 'zh'
+   ============================================================ */
+
+function localizeDOM() {
+  if (LOCALE !== 'zh') return;
+
+  /* Series label */
+  const sl = document.querySelector('.series-label');
+  if (sl) sl.textContent = TX.seriesLabel;
+
+  /* Title (h1) */
+  const title = document.getElementById('title');
+  if (title) title.textContent = TX.title;
+
+  /* Intro line */
+  const il = document.querySelector('.intro-line');
+  if (il) il.textContent = TX.introLine;
+
+  /* Scanning text */
+  const st = document.querySelector('.scanning-text');
+  if (st) st.textContent = TX.scanning;
+
+  /* Footer */
+  const footerPs = document.querySelectorAll('#footer p');
+  if (footerPs.length >= 2) {
+    footerPs[0].innerHTML =
+      '<a href="https://sinceyouarrived.world/now">' + TX.footerVol1 + '</a>' + TX.footerVol1Desc + ' ' +
+      '<a href="https://sinceyouarrived.world/sky">' + TX.footerVol2 + '</a>' + TX.footerVol2Desc + ' ' +
+      '<a href="https://sinceyouarrived.world/discovered">' + TX.footerVol3 + '</a>' + TX.footerVol3Desc + ' ' +
+      TX.footerVol4 + ' <a href="https://sinceyouarrived.world/taken/agents">' + TX.footerAgents + '</a>';
+    footerPs[1].innerHTML =
+      '<a href="https://sinceyouarrived.world/distance">' + TX.footerVol5 + '</a>' + TX.footerVol5Desc;
+  }
+
+  document.getElementById('footer-edition').textContent =
+    '第四卷 · ' + new Date().toLocaleString('zh-CN', { month: 'long', year: 'numeric' });
+
+  const colophon = document.querySelector('.colophon-made');
+  if (colophon) {
+    colophon.innerHTML = TX.footerCreated + ' <a href="https://riseuplabs.app/" target="_blank" rel="noopener noreferrer">Rise Up Labs</a>。<br><a href="https://bsky.app/profile/sinceyouarrived.world" target="_blank" rel="noopener noreferrer">@sinceyouarrived.world</a> ' + TX.footerBluesky;
+  }
+
+  /* Noscript */
+  const nsDivs = document.querySelectorAll('noscript + * + * + *'); /* not reliable, skip */
+
+  /* Share modal */
+  const shareHeading = document.getElementById('shareHeading');
+  if (shareHeading) shareHeading.textContent = TX.shareHeading;
+  const spl = document.querySelector('.share-preview-label');
+  if (spl) spl.textContent = TX.sharePreviewLabel;
+  const sph = document.getElementById('share-preview-headline');
+  if (sph) sph.textContent = TX.sharePreviewHeadline;
+  document.querySelectorAll('.seal-btn').forEach(btn => {
+    const txt = btn.textContent.trim();
+    if (txt.includes('Twitter')) btn.textContent = TX.shareX;
+    else if (txt === 'Bluesky') btn.textContent = TX.shareBluesky;
+    else if (txt === 'LinkedIn') btn.textContent = TX.shareLinkedIn;
+    else if (txt === 'Facebook') btn.textContent = TX.shareFacebook;
+    else if (txt === 'Reddit') btn.textContent = TX.shareReddit;
+    else if (txt === 'WhatsApp') btn.textContent = TX.shareWhatsApp;
+    else if (txt === 'Copy Link' || txt.startsWith('Copied')) btn.textContent = TX.shareCopyLink;
+  });
+  const shareClose = document.getElementById('shareCloseBtn');
+  if (shareClose) shareClose.textContent = TX.shareClose;
+
+  /* Sources modal */
+  const sourcesKicker = document.querySelector('.sources-kicker');
+  if (sourcesKicker) sourcesKicker.textContent = TX.sourcesKicker;
+  const sourcesHeading = document.getElementById('sourcesHeading');
+  if (sourcesHeading) sourcesHeading.textContent = TX.sourcesTitle;
+  const sourcesSub = document.querySelector('.sources-sub');
+  if (sourcesSub) sourcesSub.textContent = TX.sourcesSub;
+
+  const sourceItems = document.querySelectorAll('.source-item');
+  const sourceKeys = ['sourcesLocation','sourcesBrowserAPI','sourcesFontFP','sourcesCanvasFP','sourcesClipboard','sourcesBattery','sourcesNotRun','sourcesBarcode','sourcesProse','sourcesSent','sourcesStored','sourcesCompanion'];
+  sourceItems.forEach((item, i) => {
+    if (i >= sourceKeys.length) return;
+    const key = sourceKeys[i];
+    const labelEl = item.querySelector('.source-label');
+    if (labelEl) labelEl.textContent = TX[key].label;
+    const noteEl = item.querySelector('.source-note');
+    if (noteEl) noteEl.textContent = TX[key].note;
+  });
+
+  const sourcesFoot = document.querySelector('.sources-foot');
+  if (sourcesFoot) sourcesFoot.innerHTML = TX.sourcesFoot + '<br><br><em>' + TX.sourcesFootFuture + '</em>';
+
+  const sourcesClose = document.getElementById('sourcesCloseBtn');
+  if (sourcesClose) sourcesClose.textContent = TX.sourcesClose;
+}
+
+/* ============================================================
+   FOOTER EDITION
+   ============================================================ */
+
+document.getElementById('footer-edition').textContent =
+  'Vol. IV · ' + new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' });
+
+/* ============================================================
+   GO
+   ============================================================ */
+
+localizeDOM();
+render();
+
+</script>
+</body>
+</html>
